@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Panel Aliados | SIGAPH S.A.S.</title>
+  <link rel="stylesheet" href="panel.css">
+  <!-- Librerías -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+
+  <style>
+    /* pequeños ajustes locales */
+    .acciones { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+    .readonly { background:#f7f7f7; }
+  </style>
+</head>
+<body>
+  <header class="panel-header">
+    <div class="panel-header-content">
+      <div class="panel-logo">
+        <img src="logo_sigaph1.png" alt="SIGAPH SAS" />
+        <h1>SIGAPH — Panel de Aliados</h1>
+      </div>
+      <div class="panel-user-info">
+        <span id="bienvenida">Bienvenido</span>
+        <button id="cerrarSesion" class="logout-btn">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="panel-nav" role="navigation">
+    <button onclick="mostrarSeccion('inicio')">Inicio</button>
+    <button onclick="mostrarSeccion('reporte')">Generar Reporte</button>
+    <button onclick="mostrarSeccion('opcion1')">Opción 1</button>
+    <button onclick="mostrarSeccion('opcion2')">Opción 2</button>
+    <button onclick="mostrarSeccion('opcion3')">Opción 3</button>
+    <!-- Control de Aliados (admin) se inyectará si corresponde -->
+  </nav>
+
+  <main>
+    <section id="inicio" class="panel-section activo">
+      <h2>Bienvenido al Panel de Aliados</h2>
+      <p>Desde aquí podrás generar reportes técnicos y el administrador (aliado01) podrá gestionarlos.</p>
+    </section>
+
+    <section id="reporte" class="panel-section">
+      <h2>Formulario de Reporte</h2>
+      <form id="reporteForm" class="reporte-form">
+        <label>Nombre de la empresa *</label>
+        <input id="empresa" type="text" required>
+
+        <label>Nombre del técnico o asistente *</label>
+        <input id="tecnico" type="text" required>
+
+        <label>Fecha *</label>
+        <input id="fecha" type="date" required readonly class="readonly">
+
+        <label>Hora *</label>
+        <input id="hora" type="time" required readonly class="readonly">
+
+        <label>Lugar o unidad residencial *</label>
+        <input id="lugar" type="text" required>
+
+        <label>Descripción o diagnóstico *</label>
+        <textarea id="descripcion" rows="5" placeholder="Describa la visita..."></textarea>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px;">
+          <button type="button" class="btn-mic" id="dictarBtn">🎤 Dictar</button>
+          <small style="color:#555">Usa el micrófono para dictar texto (Chrome recomendado).</small>
+        </div>
+
+        <label>Subir mínimo 3 fotos *</label>
+        <input id="fotos" type="file" accept="image/*" multiple required>
+
+        <label>Formato escaneado (opcional)</label>
+        <input id="formato" type="file" accept="image/*,.pdf">
+
+        <div class="acciones">
+          <button type="submit" class="btn-finalizar">Finalizar / Enviar Reporte</button>
+          <button type="button" class="btn-volver" onclick="mostrarSeccion('inicio')">Volver</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="opcion1" class="panel-section"><h2>Opción 1</h2><p>Contenido en desarrollo.</p></section>
+    <section id="opcion2" class="panel-section"><h2>Opción 2</h2><p>Contenido en desarrollo.</p></section>
+    <section id="opcion3" class="panel-section"><h2>Opción 3</h2><p>Contenido en desarrollo.</p></section>
+
+    <section id="control-aliados" class="panel-section" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2>Control de Aliados</h2>
+        <div>
+          <button id="editarAliadosBtn" class="btn-mic">Editar lista de aliados</button>
+          <button id="exportReportesBtn" class="btn-volver">Exportar reportes (JSON)</button>
+        </div>
+      </div>
+
+      <p>Haz clic en un aliado para ver sus reportes guardados localmente.</p>
+
+      <div id="listaAliados" class="lista-aliados" style="margin-top:1rem;"></div>
+
+      <div id="panelControl" class="panel-control" style="display:none;">
+        <h3 id="tituloAliado"></h3>
+        <div id="reportesAliado"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  /* ================== CONFIG ================== */
+  const WHATSAPP_NUMBER = '+573207663189';
+  const EMAILJS_SERVICE = "service_c5z2acr";
+  const EMAILJS_TEMPLATE = "template_jwz3csf";
+  const EMAILJS_PUBLIC_KEY = "vDnudcjObc-6BzNom";
+  if (window.emailjs) emailjs.init(EMAILJS_PUBLIC_KEY);
+
+  /* ================ SESIÓN ================ */
+  const aliado = JSON.parse(localStorage.getItem('aliado_autenticado') || 'null');
+  if (!aliado) { window.location.href = 'login.html'; }
+
+  // UI welcome and auto-fill tecnico
+  document.getElementById('bienvenida').textContent = `Bienvenido, ${aliado.nombre} — ${aliado.displayName.split('—').pop()?.trim() || aliado.displayName}`;
+  document.getElementById('tecnico').value = aliado.nombre || '';
+
+  document.getElementById('cerrarSesion').addEventListener('click', () => {
+    localStorage.removeItem('aliado_autenticado');
+    window.location.href = 'login.html';
+  });
+
+  function mostrarSeccion(id){
+    document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('activo'));
+    const e = document.getElementById(id);
+    if (e) e.classList.add('activo');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // set date/time (non-editable)
+  function setFechaHoraActuales(){
+    const now = new Date();
+    document.getElementById('fecha').value = now.toISOString().split('T')[0];
+    document.getElementById('hora').value = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+  setFechaHoraActuales();
+
+  /* ================ DICTADO ================ */
+  let recog = null;
+  const dictarBtn = document.getElementById('dictarBtn');
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recog = new SR();
+    recog.lang = 'es-CO';
+    recog.interimResults = false;
+    recog.maxAlternatives = 1;
+    recog.onresult = (e) => {
+      const text = e.results[0][0].transcript;
+      document.getElementById('descripcion').value += (document.getElementById('descripcion').value ? ' ' : '') + text;
+    };
+    recog.onerror = (err) => console.warn('Speech error', err);
+  } else {
+    dictarBtn.disabled = true;
+    dictarBtn.title = 'Reconocimiento de voz no compatible';
+  }
+  dictarBtn.addEventListener('click', () => {
+    if (!recog) { alert('Reconocimiento no soportado. Usa Chrome.'); return; }
+    recog.start();
+  });
+
+  /* ================ HELPERS ================ */
+  function fileToDataUrl(file){
+    return new Promise((resolve,reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+
+  function cargarAliados(){ return JSON.parse(localStorage.getItem('ALIADOS_LIST') || '[]'); }
+  function guardarAliados(list){ localStorage.setItem('ALIADOS_LIST', JSON.stringify(list)); }
+
+  /* ================ GENERAR / GUARDAR / ENVIAR ================ */
+  document.getElementById('reporteForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+
+    // values
+    const empresa = document.getElementById('empresa').value.trim();
+    const tecnico = document.getElementById('tecnico').value.trim();
+    const fecha = document.getElementById('fecha').value;
+    const hora = document.getElementById('hora').value;
+    const lugar = document.getElementById('lugar').value.trim();
+    const descripcion = document.getElementById('descripcion').value.trim();
+    const fotos = Array.from(document.getElementById('fotos').files);
+
+    if (!empresa || !tecnico || !lugar || !descripcion) { alert('Complete todos los campos obligatorios.'); return; }
+    if (fotos.length < 3) { alert('Sube al menos 3 fotos.'); return; }
+
+    try {
+      console.log('Generando PDF...');
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit:'pt', format:'a4' });
+      const pageW = doc.internal.pageSize.getWidth();
+
+      // header
+      doc.setFillColor(0,43,92);
+      doc.rect(0,0,pageW,70,'F');
+      doc.setFontSize(16); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold');
+      doc.text('SIGAPH S.A.S. — Prestadora de Servicios', 20, 42);
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(0,0,0);
+      doc.text(`EMPRESA: ${empresa}`, 20, 110);
+
+      const titulo = 'INFORME DE DIAGNÓSTICO';
+      const wTitulo = doc.getTextWidth(titulo);
+      doc.text(titulo, (pageW - wTitulo)/2, 140);
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(11);
+      doc.text(`Fecha: ${fecha}   Hora: ${hora}`, 20, 165);
+      doc.text(`Lugar: ${lugar}`, 20, 182);
+      doc.line(20, 190, pageW-20, 190);
+
+      const split = doc.splitTextToSize(descripcion, pageW - 40);
+      doc.text(split, 20, 210);
+
+      let cursorY = 210 + split.length * 14 + 10;
+      for (let i=0;i<fotos.length;i++){
+        if (cursorY > 740) { doc.addPage(); cursorY = 40; }
+        const dataUrl = await fileToDataUrl(fotos[i]);
+        const props = doc.getImageProperties(dataUrl);
+        const maxW = 250;
+        const scale = Math.min(maxW/props.width, 200/props.height, 1);
+        const w = props.width * scale;
+        const h = props.height * scale;
+        const x = 20 + (i%2)*(maxW+20);
+        doc.addImage(dataUrl, 'JPEG', x, cursorY, w, h);
+        if (i%2 === 1) cursorY += h + 12;
+        else if (i === fotos.length - 1) cursorY += h + 12;
+      }
+
+      if (cursorY > 740) { doc.addPage(); cursorY = 40; }
+      doc.setFont('helvetica','italic');
+      doc.text(`Visita realizada por: ${tecnico}`, 20, cursorY + 20);
+      doc.text('Aliado SIGAPH S.A.S.', 20, cursorY + 36);
+
+      const pdfDataUri = doc.output('datauristring');
+
+      // crear objeto y comprimir pdfDataUri con LZString
+      const nuevo = {
+        id: Date.now(),
+        aliadoUsername: aliado.username,
+        aliadoDisplay: aliado.displayName,
+        empresa, tecnico, fecha, hora, lugar, descripcion,
+        pdfDataUriCompressed: LZString.compressToUTF16(pdfDataUri),
+        revisado:false, enviado:false, seguimiento:'en proceso', observaciones:''
+      };
+
+      // guardar en reportes_comprimidos
+      const all = JSON.parse(localStorage.getItem('reportes_comprimidos') || '[]');
+      all.push(nuevo);
+      localStorage.setItem('reportes_comprimidos', JSON.stringify(all));
+      console.log('Reporte guardado localmente (comprimido).');
+
+      // Enviar email (opcional si emailjs configurado)
+      const templateParams = {
+        to_email: "sigaph.s.a.s@gmail.com",
+        from_name: tecnico,
+        message: `Nuevo informe técnico de la empresa ${empresa} - enviado desde Panel Aliados.\nFecha: ${fecha} Hora: ${hora}`
+      };
+      if (window.emailjs) {
+        try {
+          await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams);
+          console.log('Email enviado por EmailJS (si configurado).');
+        } catch(err) {
+          console.warn('EmailJS error:', err);
+        }
+      }
+
+      // Abrir WhatsApp Web (el usuario confirma el envío)
+      const waMsg = encodeURIComponent(`Nuevo reporte técnico generado por ${aliado.nombre} (${aliado.username}). Empresa: ${empresa}. Revisa el panel de control o el correo.`);
+      const waNumber = WHATSAPP_NUMBER.replace(/\+/g,'').replace(/[^0-9]/g,'');
+      const waUrl = `https://wa.me/${waNumber}?text=${waMsg}`;
+      window.open(waUrl, '_blank');
+
+      alert('✅ Reporte generado, comprimido y guardado localmente. Se abrió WhatsApp (confirma el envío si deseas).');
+
+      // actualizar CRM en caso de estar viendo (render)
+      renderListaAliados(); // actualiza botones
+      // si el admin tiene abierto el panel de un aliado, refrescarlo
+      const panelVisibleUser = document.getElementById('tituloAliado')?.dataset?.username;
+      if (panelVisibleUser) {
+        mostrarReportesDe(panelVisibleUser);
+      }
+
+      // reset form
+      document.getElementById('reporteForm').reset();
+      setFechaHoraActuales();
+
+    } catch(err) {
+      console.error('Error al generar reporte:', err);
+      alert('Ocurrió un error al generar el reporte. Mira la consola para más detalles.');
+    }
+  });
+
+  /* ================ CRM ================ */
+  // inject control button if aliado01
+  const nav = document.querySelector('.panel-nav');
+  if (aliado && aliado.username === 'aliado01') {
+    const btn = document.createElement('button');
+    btn.textContent = 'Control de Aliados';
+    btn.onclick = () => mostrarSeccion('control-aliados');
+    nav.appendChild(btn);
+    document.getElementById('control-aliados').style.display = 'block';
+    inicializarControlAliados();
+  }
+
+  function inicializarControlAliados(){
+    renderListaAliados();
+    document.getElementById('editarAliadosBtn').addEventListener('click', editarListaAliados);
+    document.getElementById('exportReportesBtn').addEventListener('click', exportReportesJson);
+
+    // cuando otro tab guarda reportes_comprimidos, actualizamos UI
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'reportes_comprimidos') {
+        console.log('Storage change detected -> refresh CRM');
+        renderListaAliados();
+        // if currently showing a user's report, refresh that list too
+        const titulo = document.getElementById('tituloAliado');
+        if (titulo && titulo.dataset && titulo.dataset.username) {
+          mostrarReportesDe(titulo.dataset.username);
+        }
+      }
+    });
+  }
+
+  function renderListaAliados(){
+    const container = document.getElementById('listaAliados');
+    if (!container) return;
+    container.innerHTML = '';
+    const aliados = cargarAliados();
+    aliados.forEach(a => {
+      const b = document.createElement('button');
+      b.className = 'btn-aliado';
+      b.textContent = a.displayName || a.username;
+      b.onclick = () => mostrarReportesDe(a.username);
+      container.appendChild(b);
+    });
+  }
+
+  function exportReportesJson(){
+    const raw = localStorage.getItem('reportes_comprimidos') || '[]';
+    const blob = new Blob([raw], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'reportes_comprimidos.json'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function mostrarReportesDe(username){
+    const panel = document.getElementById('panelControl');
+    const cont = document.getElementById('reportesAliado');
+    const titulo = document.getElementById('tituloAliado');
+    titulo.textContent = '';
+    titulo.dataset.username = username;
+
+    const all = JSON.parse(localStorage.getItem('reportes_comprimidos') || '[]');
+    const rep = all.filter(r => r.aliadoUsername === username);
+    const aliados = cargarAliados();
+    const aObj = aliados.find(x => x.username === username) || { displayName: username };
+    titulo.textContent = aObj.displayName;
+
+    cont.innerHTML = '';
+    if (rep.length === 0) {
+      cont.innerHTML = '<p>No hay reportes aún.</p>';
+      panel.style.display = 'block';
+      return;
+    }
+
+    rep.forEach((r, idx) => {
+      // descomprimir pdf
+      let pdfDataUri = '';
+      try { pdfDataUri = LZString.decompressFromUTF16(r.pdfDataUriCompressed); } catch(e){ console.warn('descompress fail', e); }
+
+      const card = document.createElement('div');
+      card.className = 'reporte-card';
+      card.innerHTML = `
+        <p><strong>Empresa:</strong> ${r.empresa}</p>
+        <p><strong>Técnico:</strong> ${r.tecnico}</p>
+        <p><strong>Fecha:</strong> ${r.fecha} — ${r.hora}</p>
+        <p><strong>Lugar:</strong> ${r.lugar}</p>
+        <div style="margin-top:8px">
+          <a class="btn-ver" ${pdfDataUri ? `href="${pdfDataUri}" target="_blank"` : 'href="#" onclick="alert(\\'PDF no disponible\\')' } >Ver PDF</a>
+        </div>
+        <div class="check-group" style="margin-top:8px">
+          <label><input type="checkbox" data-type="revisado" ${r.revisado ? 'checked' : ''}/> Revisado</label>
+          <label><input type="checkbox" data-type="enviado" ${r.enviado ? 'checked' : ''}/> Enviado</label>
+        </div>
+        <label style="display:block;margin-top:8px">Seguimiento:
+          <select data-type="seguimiento" style="margin-top:6px;">
+            <option ${r.seguimiento==='en proceso' ? 'selected':''}>en proceso</option>
+            <option ${r.seguimiento==='en espera de cotización' ? 'selected':''}>en espera de cotización</option>
+            <option ${r.seguimiento==='cotización entregada' ? 'selected':''}>cotización entregada</option>
+          </select>
+        </label>
+        <label style="display:block;margin-top:8px">Observaciones:
+          <textarea data-type="observaciones" style="min-height:60px;margin-top:6px;">${r.observaciones||''}</textarea>
+        </label>
+        <div style="text-align:right;margin-top:8px">
+          <button class="btn-guardar" data-id="${r.id}" data-user="${username}">Guardar</button>
+        </div>
+      `;
+      cont.appendChild(card);
+    });
+
+    panel.style.display = 'block';
+  }
+
+  // guardar cambios del reporte
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('btn-guardar')) {
+      const id = e.target.dataset.id;
+      const user = e.target.dataset.user;
+      const all = JSON.parse(localStorage.getItem('reportes_comprimidos') || '[]');
+      const globalIdx = all.findIndex(x => x.id == id && x.aliadoUsername === user);
+      if (globalIdx < 0) { alert('No se encontró reporte'); return; }
+
+      const card = e.target.closest('.reporte-card');
+      const revisado = card.querySelector('input[data-type="revisado"]').checked;
+      const enviado = card.querySelector('input[data-type="enviado"]').checked;
+      const seguimiento = card.querySelector('select[data-type="seguimiento"]').value;
+      const observaciones = card.querySelector('textarea[data-type="observaciones"]').value;
+
+      all[globalIdx].revisado = revisado;
+      all[globalIdx].enviado = enviado;
+      all[globalIdx].seguimiento = seguimiento;
+      all[globalIdx].observaciones = observaciones;
+      localStorage.setItem('reportes_comprimidos', JSON.stringify(all));
+      alert('Cambios guardados.');
+    }
+  });
+
+  // editar lista UI
+  function editarListaAliados(){
+    const aliados = cargarAliados();
+    const modal = document.createElement('div');
+    modal.style.position='fixed'; modal.style.left='0'; modal.style.top='0'; modal.style.width='100%'; modal.style.height='100%';
+    modal.style.background='rgba(0,0,0,0.4)'; modal.style.display='flex'; modal.style.alignItems='center'; modal.style.justifyContent='center';
+    modal.innerHTML = `<div style="background:#fff;padding:18px;border-radius:10px;max-width:760px;width:92%;max-height:80vh;overflow:auto;">
+      <h3>Editar lista de aliados</h3>
+      <div id="editorAliados"></div>
+      <div style="text-align:right;margin-top:12px"><button id="cancelEdit" class="btn-volver">Cancelar</button> <button id="saveEdit" class="btn-finalizar">Guardar</button></div>
+    </div>`;
+    document.body.appendChild(modal);
+    const editor = modal.querySelector('#editorAliados');
+    aliados.forEach((a,i) => {
+      const row = document.createElement('div');
+      row.style.display='flex'; row.style.gap='8px'; row.style.marginBottom='8px';
+      row.innerHTML = `<input data-idx="${i}" value="${a.displayName || a.username}" style="flex:1;padding:8px;border-radius:8px;border:1px solid #ddd" /> <input data-user="${a.username}" value="${a.username}" style="width:140px;padding:8px;border-radius:8px;border:1px solid #ddd" />`;
+      editor.appendChild(row);
+    });
+    modal.querySelector('#cancelEdit').onclick = () => modal.remove();
+    modal.querySelector('#saveEdit').onclick = () => {
+      const inputs = editor.querySelectorAll('input[data-idx]');
+      const lista = JSON.parse(localStorage.getItem('ALIADOS_LIST') || '[]');
+      inputs.forEach(inp => {
+        const idx = parseInt(inp.dataset.idx,10);
+        lista[idx].displayName = inp.value.trim() || lista[idx].displayName;
+      });
+      guardarAliados(lista);
+      modal.remove();
+      renderListaAliados();
+      alert('Lista actualizada.');
+    };
+  }
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Aliados | SIGAPH S.A.S.</title>
+  <link rel="stylesheet" href="panel.css">
+  <!-- Librerías necesarias -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+</head>
+<body>
+
+  <header class="panel-header">
+    <div class="logo-area">
+      <img src="../logo_sigaph1.png" alt="SIGAPH Logo">
+      <h1>Panel de Aliados SIGAPH</h1>
+    </div>
+    <button class="logout-btn" onclick="cerrarSesion()">Cerrar sesión</button>
+  </header>
+
+  <nav class="panel-nav">
+    <button onclick="mostrarSeccion('inicio')">Inicio</button>
+    <button onclick="mostrarSeccion('opcion1')">Opción 1</button>
+    <button onclick="mostrarSeccion('opcion2')">Opción 2</button>
+    <button onclick="mostrarSeccion('opcion3')">Opción 3</button>
+  </nav>
+
+  <main id="inicio" class="panel-section activo">
+    <div class="panel-center">
+      <h2>Bienvenido <span id="usuarioActivo"></span></h2>
+      <p>Desde este panel puede registrar sus reportes y acceder a las herramientas de SIGAPH.</p>
+      <button class="btn-reporte" onclick="mostrarSeccion('reporte')">📋 Generar Reporte</button>
+    </div>
+  </main>
+
+  <section id="reporte" class="panel-section">
+    <h2>Formulario de Reporte</h2>
+    <form id="reporteForm" class="reporte-form">
+      <label>Nombre de la empresa *</label>
+      <input type="text" id="empresa" required>
+
+```
+  <label>Nombre del técnico o asistente *</label>
+  <input type="text" id="tecnico" required>
+
+  <label>Fecha *</label>
+  <input type="date" id="fecha" required readonly>
+
+  <label>Hora *</label>
+  <input type="time" id="hora" required readonly>
+
+  <label>Lugar o unidad residencial *</label>
+  <input type="text" id="lugar" required>
+
+  <label>Descripción o diagnóstico *</label>
+  <textarea id="descripcion" rows="5" placeholder="Describa la visita o dicte con el micrófono..."></textarea>
+  <button type="button" class="btn-mic" onclick="iniciarDictado()">🎤 Dictar Audio</button>
+
+  <label>Subir mínimo 3 fotos *</label>
+  <input type="file" id="fotos" accept="image/*" multiple required>
+
+  <label>Formato escaneado (opcional)</label>
+  <input type="file" id="formato" accept="image/*,.pdf">
+
+  <div class="acciones">
+    <button type="submit" class="btn-finalizar">Finalizar Reporte</button>
+    <button type="button" class="btn-volver" onclick="mostrarSeccion('inicio')">Volver</button>
+  </div>
+</form>
+```
+
+  </section>
+
+  <section id="opcion1" class="panel-section"><h2>Opción 1</h2><p>Contenido en desarrollo.</p></section>
+  <section id="opcion2" class="panel-section"><h2>Opción 2</h2><p>Contenido en desarrollo.</p></section>
+  <section id="opcion3" class="panel-section"><h2>Opción 3</h2><p>Contenido en desarrollo.</p></section>
+
+<script>
+/* ================== CONFIG EMAILJS ===================
+   He puesto aquí los valores que aparecieron en tus capturas.
+   Si más adelante deseas cambiar, edítalos aquí.
+   =================================================== */
+const EMAILJS_SERVICE = "service_c5z2acr";   // tu Service ID
+const EMAILJS_TEMPLATE = "template_jwz3csf"; // tu Template ID
+const EMAILJS_PUBLIC_KEY = "vDnudcjObc-6BzNom"; // tu Public Key
+emailjs.init(EMAILJS_PUBLIC_KEY);
+
+/* ===================================================
+   Inicialización UI: usuario y fecha/hora automáticas
+   =================================================== */
+document.getElementById("usuarioActivo").innerText = localStorage.getItem("usuario") || "Aliado";
+const hoy = new Date();
+document.getElementById("fecha").value = hoy.toISOString().split('T')[0];
+document.getElementById("hora").value = hoy.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+/* Navegación simple entre secciones */
+function mostrarSeccion(id) {
+  document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('activo'));
+  document.getElementById(id).classList.add('activo');
+}
+function cerrarSesion() {
+  localStorage.removeItem("usuario");
+  window.location.href = "login.html";
+}
+
+/* ================== Dictado por voz ================== */
+function iniciarDictado() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert("Tu navegador no soporta reconocimiento de voz.");
+    return;
+  }
+  const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const rec = new Recog();
+  rec.lang = "es-ES";
+  rec.onresult = e => {
+    document.getElementById("descripcion").value += (e.results[0][0].transcript + " ");
+  };
+  rec.start();
+}
+
+/* ============== Manejo del envío de reporte ============== */
+document.getElementById("reporteForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const empresa = document.getElementById("empresa").value.trim();
+  const tecnico = document.getElementById("tecnico").value.trim();
+  const fecha = document.getElementById("fecha").value;
+  const hora = document.getElementById("hora").value;
+  const lugar = document.getElementById("lugar").value.trim();
+  const descripcion = document.getElementById("descripcion").value.trim();
+  const fotos = Array.from(document.getElementById("fotos").files);
+
+  if (!empresa || !tecnico || !lugar || !descripcion) {
+    alert("Por favor complete todos los campos obligatorios.");
+    return;
+  }
+  if (fotos.length < 3) {
+    alert("Debe subir al menos 3 fotos.");
+    return;
+  }
+
+  try {
+    alert("⏳ Generando reporte profesional (PDF). Espere...");
+
+    // 1) Crear PDF con jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+    // Encabezado con fondo azul y logo al lado (si el logo no está disponible no rompe)
+    doc.setFillColor(0, 43, 92); // color azul corporativo
+    doc.rect(0, 0, 595, 70, "F"); // rectángulo superior
+
+    doc.setFontSize(16);
+    doc.setTextColor(255,255,255);
+    doc.setFont("helvetica", "bold");
+    doc.text("SIGAPH S.A.S. — Prestadora de Servicios", 20, 42);
+
+    doc.setFontSize(12);
+    doc.setTextColor(0,0,0);
+    doc.setFont("helvetica", "bold");
+    doc.text(`EMPRESA: ${empresa}`, 20, 110);
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    // Centrar título INFORME DE DIAGNÓSTICO
+    const titulo = "INFORME DE DIAGNÓSTICO";
+    const paginaAncho = doc.internal.pageSize.getWidth();
+    const tituloAncho = doc.getTextWidth(titulo);
+    doc.text(titulo, (paginaAncho - tituloAncho) / 2, 140);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text(`Fecha: ${fecha}   Hora: ${hora}`, 20, 165);
+    doc.text(`Lugar / Unidad: ${lugar}`, 20, 182);
+
+    // Agregar una línea divisoria
+    doc.setDrawColor(200);
+    doc.setLineWidth(0.5);
+    doc.line(20, 190, paginaAncho - 20, 190);
+
+    // Texto del diagnóstico (ajustar a ancho)
+    const maxLineWidth = paginaAncho - 40;
+    const splitText = doc.splitTextToSize(descripcion, maxLineWidth);
+    doc.text(splitText, 20, 210);
+
+    // Calcular posición Y actual
+    let cursorY = 210 + splitText.length * 14 + 10;
+
+    // Insertar imágenes (fotos)
+    for (let i = 0; i < fotos.length; i++) {
+      if (cursorY > 740) { // añadir nueva página si está muy abajo
+        doc.addPage();
+        cursorY = 40;
+      }
+
+      // Convertir la imagen a dataURL usando FileReader -> canvas si necesario
+      const imgDataUrl = await fileToDataUrl(fotos[i]);
+
+      // Añadir imagen con max ancho 250pt y mantener proporción
+      const imgProps = doc.getImageProperties(imgDataUrl);
+      const maxImgW = 250;
+      const scale = Math.min(maxImgW / imgProps.width, 200 / imgProps.height, 1);
+      const imgW = imgProps.width * scale;
+      const imgH = imgProps.height * scale;
+
+      // Si quedan dos imágenes por fila, colocamos en columnas
+      const xPos = 20 + (i % 2) * (maxImgW + 20);
+      doc.addImage(imgDataUrl, "JPEG", xPos, cursorY, imgW, imgH);
+
+      // si estamos en la segunda columna incrementamos cursorY
+      if (i % 2 === 1) {
+        cursorY += imgH + 12;
+      } else {
+        // si siguiente es la última o está en la misma fila no mover
+        if (i === fotos.length - 1) cursorY += imgH + 12;
+      }
+    }
+
+    // Agregar datos del técnico al final
+    if (cursorY > 740) {
+      doc.addPage();
+      cursorY = 40;
+    }
+    doc.setFont("helvetica", "italic");
+    doc.text(`Visita realizada por: ${tecnico}`, 20, cursorY + 20);
+    doc.text(`Aliado SIGAPH S.A.S.`, 20, cursorY + 36);
+
+    // 2) Obtener PDF como DataURI (base64)
+    const pdfDataUri = doc.output("datauristring"); // comienza con "data:application/pdf;base64,..."
+
+    // 3) Enviar por EmailJS
+    // Template params — deben coincidir con los campos usados en tu plantilla de EmailJS.
+ const templateParams = {
+  to_email: "sigaph.s.a.s@gmail.com",
+  from_name: tecnico,
+  message: `Nuevo informe técnico de la empresa ${empresa} - enviado desde Panel Aliados.`,
+  attachment: pdfDataUri
+};
+
+
+    // Enviar
+    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams);
+
+    alert("✅ Reporte generado y enviado correctamente a SIGAPH S.A.S.");
+    mostrarSeccion('inicio');
+    document.getElementById("reporteForm").reset();
+
+  } catch (err) {
+    console.error("Error al generar/enviar reporte:", err);
+    alert("⚠️ Ocurrió un error al generar o enviar el reporte. Revisa la consola para más detalles.");
+  }
+});
+
+/* ========== helpers ========== */
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+1) usuario: aliado01   | contraseña: S!gaph2025A
+2) usuario: aliado02   | contraseña: S!gaph2025B
+3) usuario: aliado03   | contraseña: S!gaph2025C
+4) usuario: aliado04   | contraseña: S!gaph2025D
+5) usuario: aliado05   | contraseña: S!gaph2025E
+6) usuario: aliado06   | contraseña: S!gaph2025F
+7) usuario: aliado07   | contraseña: S!gaph2025G
+8) usuario: aliado08   | contraseña: S!gaph2025H
+9) usuario: aliado09   | contraseña: S!gaph2025I
+10) usuario: aliado10  | contraseña: S!gaph2025J

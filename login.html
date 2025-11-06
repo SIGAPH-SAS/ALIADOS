@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Acceso Aliados — SIGAPH S.A.S.</title>
+  <link rel="stylesheet" href="panel.css">
+  <style>
+    :root{--azul:#002b5c;--verde:#0a7b40;--blanco:#fff}
+    body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,43,92,0.06),rgba(10,123,64,0.02));font-family:Poppins,Arial}
+    .card{width:100%;max-width:420px;background:#fff;border-radius:12px;padding:28px;box-shadow:0 12px 40px rgba(2,12,40,0.12);text-align:center}
+    .logo{width:92px;margin:0 auto 10px;display:block}
+    h1{margin:6px 0 2px;color:var(--azul);font-size:20px}
+    p.sub{color:#53677f;margin:0 0 16px}
+    input{width:100%;padding:10px;border-radius:10px;border:1px solid #dde6ef;margin:8px 0;font-size:14px}
+    .btn{background:var(--verde);color:var(--blanco);padding:12px;border-radius:10px;border:none;font-weight:700;cursor:pointer;width:100%}
+    .btn:hover{transform:translateY(-2px)}
+    .foot{margin-top:12px;color:#6b7a8a;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="card" role="main" aria-labelledby="tituloLogin">
+    <img src="logo_sigaph1.png" alt="SIGAPH" class="logo" onerror="this.style.display='none'">
+    <h1 id="tituloLogin">Acceso de Aliados</h1>
+    <p class="sub">Ingresa tu usuario y contraseña asignada por <strong style="color:#0a7b40">SIGAPH&nbsp;S.A.S.</strong></p>
+
+    <input id="usuario" placeholder="Usuario" autocomplete="off" />
+    <input id="clave" type="password" placeholder="Contraseña" autocomplete="off" />
+    <button class="btn" id="entrarBtn">Ingresar</button>
+    <p id="err" style="color:#c0392b;margin-top:10px"></p>
+    <div class="foot">&copy; 2025 SIGAPH S.A.S. — Uso restringido a aliados autorizados</div>
+  </div>
+
+  <script>
+    // LISTA INICIAL (se guarda en ALIADOS_LIST si no existe)
+    const DEFAULT_ALIADOS = [
+      { username:"aliado01", password:"S!gaph2025A", nombre:"Juan Pérez", displayName:"Juan Pérez — Empresa Alfa", email:"juan.p@empresa1.com" },
+      { username:"aliado02", password:"S!gaph2025B", nombre:"María López", displayName:"María López — Empresa Beta", email:"m.lopez@empresa2.com" },
+      { username:"aliado03", password:"S!gaph2025C", nombre:"Carlos Ruiz", displayName:"Carlos Ruiz — Empresa Gamma", email:"c.ruiz@empresa3.com" },
+      { username:"aliado04", password:"S!gaph2025D", nombre:"Ana Gómez", displayName:"Ana Gómez — Empresa Delta", email:"a.gomez@empresa4.com" },
+      { username:"aliado05", password:"S!gaph2025E", nombre:"Diego Torres", displayName:"Diego Torres — Empresa Epsilon", email:"d.torres@empresa5.com" },
+      { username:"aliado06", password:"S!gaph2025F", nombre:"Luisa Martínez", displayName:"Luisa Martínez — Empresa Zeta", email:"l.martinez@empresa6.com" },
+      { username:"aliado07", password:"S!gaph2025G", nombre:"Andrés Díaz", displayName:"Andrés Díaz — Empresa Eta", email:"a.diaz@empresa7.com" },
+      { username:"aliado08", password:"S!gaph2025H", nombre:"Carolina Ríos", displayName:"Carolina Ríos — Empresa Theta", email:"c.rios@empresa8.com" },
+      { username:"aliado09", password:"S!gaph2025I", nombre:"Jorge Herrera", displayName:"Jorge Herrera — Empresa Iota", email:"j.herrera@empresa9.com" },
+      { username:"aliado10", password:"S!gaph2025J", nombre:"Paola Campos", displayName:"Paola Campos — Empresa Kappa", email:"p.campos@empresa10.com" }
+    ];
+
+    if (!localStorage.getItem('ALIADOS_LIST')) localStorage.setItem('ALIADOS_LIST', JSON.stringify(DEFAULT_ALIADOS));
+
+    document.getElementById('entrarBtn').addEventListener('click', () => {
+      const u = document.getElementById('usuario').value.trim();
+      const p = document.getElementById('clave').value;
+      const aliados = JSON.parse(localStorage.getItem('ALIADOS_LIST') || '[]');
+      const found = aliados.find(a => a.username === u && a.password === p);
+      if (!found) {
+        document.getElementById('err').textContent = "Usuario o contraseña incorrectos.";
+        return;
+      }
+      const safe = { username: found.username, nombre: found.nombre, displayName: found.displayName, email: found.email };
+      localStorage.setItem('aliado_autenticado', JSON.stringify(safe));
+      window.location.href = 'panel.html';
+    });
+
+    // quick test: uncomment to prefill:
+    // document.getElementById('usuario').value='aliado01'; document.getElementById('clave').value='S!gaph2025A';
+  </script>
+</body>
+</html>

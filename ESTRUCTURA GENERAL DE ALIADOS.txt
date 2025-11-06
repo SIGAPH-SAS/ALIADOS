@@ -1,0 +1,129 @@
+Estructura general de ALIADOS 
+
+- login.html — Página de acceso para los aliados (con usuario y contraseña).
+
+- panel.html — Página principal a la que acceden tras iniciar sesión (panel del aliado).
+
+- reporte.html — Página que se abre al hacer clic en el botón “REPORTE”.
+
+- panel.css — Hoja de estilos con la misma línea visual que style.css.
+
+- panel.js — Archivo para manejar interacciones, validaciones y generación del PDF.
+
+
+🔐 Sistema de acceso (login)
+
+Cada aliado tendrá un usuario y contraseña asignado por SIGAPH.
+
+Para una versión inicial (sin servidor), se puede usar una validación en el front-end con una pequeña base de datos local (JSON).
+
+En producción, lo ideal sería usar una base de datos real (por ejemplo Firebase, Supabase o MySQL con PHP/Node.js).
+
+Ejemplo funcional (versión simple sin servidor):
+
+<!-- login.html -->
+<form id="loginForm">
+  <h2>Acceso Aliados SIGAPH</h2>
+  <input type="text" id="usuario" placeholder="Usuario" required>
+  <input type="password" id="clave" placeholder="Contraseña" required>
+  <button type="submit">Ingresar</button>
+</form>
+
+<script>
+  const usuarios = [
+    { usuario: "aliado1", clave: "12345" },
+    { usuario: "aliado2", clave: "sigaph2025" }
+  ];
+
+  document.getElementById("loginForm").addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const u = document.getElementById("usuario").value;
+    const c = document.getElementById("clave").value;
+    const existe = usuarios.find(x=>x.usuario===u && x.clave===c);
+    if(existe){
+      localStorage.setItem("usuario", u);
+      window.location.href="panel.html";
+    } else {
+      alert("Usuario o contraseña incorrecta");
+    }
+  });
+</script>
+
+🧭 Panel de aliados (panel.html)
+
+Una vez dentro, el aliado verá:
+
+El logo de SIGAPH arriba.
+
+Tres pestañas (Opción 1, Opción 2, Opción 3) que pueden usarse luego para estadísticas o materiales de trabajo.
+
+En el centro de la pantalla un botón principal “REPORTE” que abre el formulario de reporte.
+
+📝 Formulario de Reporte
+
+Este es el corazón del sistema:
+
+Campos:
+
+Nombre de la empresa (obligatorio)
+
+Nombre del técnico/asistente (obligatorio)
+
+Fecha y hora (automáticas)
+
+Lugar o unidad residencial (obligatorio)
+
+Descripción / diagnóstico (texto o dictado por voz que se convierte en texto)
+
+Subida de mínimo 3 fotos obligatorias + opcionales
+
+Adjunto de formato escaneado (opcional)
+
+Botón “Finalizar reporte” → genera automáticamente un PDF profesional con:
+
+Encabezado con el logo SIGAPH y nombre de empresa visitada.
+
+Título: “INFORME DE DIAGNÓSTICO”
+
+Fecha y hora.
+
+Texto técnico limpio y profesional.
+
+Fotos anexadas al final.
+
+Firma / datos del técnico.
+
+El PDF se enviará automáticamente por correo a:
+📧 sigaph.s.a.s@gmail.com
+
+Esto se puede automatizar usando EmailJS, Formspree, o un pequeño backend en Node.js o PHP para adjuntar el PDF.
+
+🗣️ Dictado por voz a texto
+
+Se puede usar la API nativa de reconocimiento de voz del navegador:
+
+const recognition = new webkitSpeechRecognition();
+recognition.lang = "es-ES";
+recognition.onresult = (e) => {
+  document.getElementById("descripcion").value = e.results[0][0].transcript;
+};
+recognition.start();
+
+
+Esto permite al técnico hablar y que el texto se escriba automáticamente en el campo de descripción.
+
+🧾 Generación automática del PDF
+
+Usaremos jsPDF + html2canvas para generar el PDF profesional desde el formulario antes de enviarlo al correo.
+
+⚙️ Tecnologías recomendadas
+
+Para que el sistema sea seguro y estable:
+
+Frontend: HTML, CSS, JS (ya lo manejas muy bien).
+
+Email y PDF: jsPDF + EmailJS.
+
+Autenticación (si crece): Firebase Auth o Supabase Auth.
+
+Base de datos (si se requiere): Google Sheets API o Firebase Firestore.

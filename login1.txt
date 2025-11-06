@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso Aliados | SIGAPH S.A.S.</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body class="login-body">
+
+  <div class="login-container">
+    <div class="login-logo">
+      <img src="../logo_sigaph1.png" alt="SIGAPH Logo">
+    </div>
+
+```
+<h2>Acceso de Aliados</h2>
+<p>Ingrese su usuario y contraseña asignada por SIGAPH S.A.S.</p>
+
+<form id="loginForm" class="login-form">
+  <input type="text" id="usuario" placeholder="Usuario" required>
+  <input type="password" id="clave" placeholder="Contraseña" required>
+  <button type="submit" class="btn-login">Ingresar</button>
+</form>
+
+<p class="login-note">© 2025 SIGAPH S.A.S. — Uso exclusivo de personal autorizado</p>
+```
+
+  </div>
+
+  <script>
+    const usuarios = [
+      { usuario: "aliado1", clave: "sigaph2025" },
+      { usuario: "aliado2", clave: "sigaph2025" }
+    ];
+
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const u = document.getElementById("usuario").value;
+      const c = document.getElementById("clave").value;
+      const existe = usuarios.find(x => x.usuario === u && x.clave === c);
+      if (existe) {
+        localStorage.setItem("usuario", u);
+        window.location.href = "panel.html";
+      } else {
+        alert("Usuario o contraseña incorrecta");
+      }
+    });
+  </script>
+
+</body>
+</html>
