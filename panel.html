@@ -634,5 +634,38 @@
     if (hash && document.getElementById(hash)) mostrarSeccion(hash);
   });
   </script>
+<!-- Firebase SDK -->
+<script type="module">
+  // Importar funciones desde Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  // Configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyBh8T3NQ10qEKaQU0WKt8u3mM_yPv9-aPk",
+    authDomain: "sigaph-reportes.firebaseapp.com",
+    projectId: "sigaph-reportes",
+    storageBucket: "sigaph-reportes.firebasestorage.app",
+    messagingSenderId: "344109913077",
+    appId: "1:344109913077:web:d4eeaf385e5d64ab87c6bc"
+  };
+
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Ejemplo: obtener y mostrar reportes en consola
+  async function obtenerReportes() {
+    const querySnapshot = await getDocs(collection(db, "reportes"));
+    querySnapshot.forEach((doc) => {
+      console.log(`${doc.id} =>`, doc.data());
+    });
+  }
+
+  // Llamar función de prueba
+  obtenerReportes();
+</script>
+
+
 </body>
 </html>
