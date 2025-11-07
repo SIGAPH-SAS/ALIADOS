@@ -8,3 +8,17 @@
 8) usuario: aliado08   | contraseña: S!gaph2025H
 9) usuario: aliado09   | contraseña: S!gaph2025I
 10) usuario: aliado10  | contraseña: S!gaph2025J
+
+| #  | Usuario             | Contraseña  |
+| -- | ------------------- | ----------- |
+| 1  | SIGAPH              | S!gaph2025A |
+| 2  | CT_ELECTRIC         | S!gaph2025B |
+| 3  | CONSTRUCTORA_BETHEL | S!gaph2025C |
+| 4  | COMUNIDAD_FELIZ     | S!gaph2025D |
+| 5  | TECHOS_RENTABLES    | S!gaph2025E |
+| 6  | JL_ASESORIAS        | S!gaph2025F |
+| 7  | aliado07            | S!gaph2025G |
+| 8  | aliado08            | S!gaph2025H |
+| 9  | aliado09            | S!gaph2025I |
+| 10 | aliado10            | S!gaph2025J |
+

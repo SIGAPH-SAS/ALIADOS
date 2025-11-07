@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Acceso Aliados — SIGAPH S.A.S.</title>
-  <link rel="stylesheet" href="panel.css">
   <style>
     :root{--azul:#002b5c;--verde:#0a7b40;--blanco:#fff}
     body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,43,92,0.06),rgba(10,123,64,0.02));font-family:Poppins,Arial}
@@ -16,54 +15,60 @@
     .btn{background:var(--verde);color:var(--blanco);padding:12px;border-radius:10px;border:none;font-weight:700;cursor:pointer;width:100%}
     .btn:hover{transform:translateY(-2px)}
     .foot{margin-top:12px;color:#6b7a8a;font-size:13px}
+    .password-wrapper{position:relative}
+    .toggle-password{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#777}
   </style>
 </head>
 <body>
   <div class="card" role="main" aria-labelledby="tituloLogin">
     <img src="logo_sigaph1.png" alt="SIGAPH" class="logo" onerror="this.style.display='none'">
     <h1 id="tituloLogin">Acceso de Aliados</h1>
-    <p class="sub">Ingresa tu usuario y contraseña asignada por <strong style="color:#0a7b40">SIGAPH&nbsp;S.A.S.</strong></p>
+    <p class="sub">Ingrese su usuario y contraseña asignada por <strong style="color:#0a7b40">SIGAPH&nbsp;S.A.S.</strong></p>
 
     <input id="usuario" placeholder="Usuario" autocomplete="off" />
-    <input id="clave" type="password" placeholder="Contraseña" autocomplete="off" />
+    <div class="password-wrapper">
+      <input id="clave" type="password" placeholder="Contraseña" autocomplete="off" />
+      <span id="togglePass" class="toggle-password">👁️</span>
+    </div>
+
     <button class="btn" id="entrarBtn">Ingresar</button>
     <p id="err" style="color:#c0392b;margin-top:10px"></p>
-    <div class="foot">&copy; 2025 SIGAPH S.A.S. — Uso restringido a aliados autorizados</div>
+    <div class="foot">&copy; 2025 SIGAPH S.A.S. — Acceso restringido a aliados autorizados</div>
   </div>
 
   <script>
-    // LISTA INICIAL (se guarda en ALIADOS_LIST si no existe)
-    const DEFAULT_ALIADOS = [
-      { username:"aliado01", password:"S!gaph2025A", nombre:"Juan Pérez", displayName:"Juan Pérez — Empresa Alfa", email:"juan.p@empresa1.com" },
-      { username:"aliado02", password:"S!gaph2025B", nombre:"María López", displayName:"María López — Empresa Beta", email:"m.lopez@empresa2.com" },
-      { username:"aliado03", password:"S!gaph2025C", nombre:"Carlos Ruiz", displayName:"Carlos Ruiz — Empresa Gamma", email:"c.ruiz@empresa3.com" },
-      { username:"aliado04", password:"S!gaph2025D", nombre:"Ana Gómez", displayName:"Ana Gómez — Empresa Delta", email:"a.gomez@empresa4.com" },
-      { username:"aliado05", password:"S!gaph2025E", nombre:"Diego Torres", displayName:"Diego Torres — Empresa Epsilon", email:"d.torres@empresa5.com" },
-      { username:"aliado06", password:"S!gaph2025F", nombre:"Luisa Martínez", displayName:"Luisa Martínez — Empresa Zeta", email:"l.martinez@empresa6.com" },
-      { username:"aliado07", password:"S!gaph2025G", nombre:"Andrés Díaz", displayName:"Andrés Díaz — Empresa Eta", email:"a.diaz@empresa7.com" },
-      { username:"aliado08", password:"S!gaph2025H", nombre:"Carolina Ríos", displayName:"Carolina Ríos — Empresa Theta", email:"c.rios@empresa8.com" },
-      { username:"aliado09", password:"S!gaph2025I", nombre:"Jorge Herrera", displayName:"Jorge Herrera — Empresa Iota", email:"j.herrera@empresa9.com" },
-      { username:"aliado10", password:"S!gaph2025J", nombre:"Paola Campos", displayName:"Paola Campos — Empresa Kappa", email:"p.campos@empresa10.com" }
+    // Lista actualizada de aliados
+    const ALIADOS = [
+      { username:"SIGAPH", password:"S!gaph2025A" },
+      { username:"CT_ELECTRIC", password:"S!gaph2025B" },
+      { username:"CONSTRUCTORA_BETHEL", password:"S!gaph2025C" },
+      { username:"COMUNIDAD_FELIZ", password:"S!gaph2025D" },
+      { username:"TECHOS_RENTABLES", password:"S!gaph2025E" },
+      { username:"JL_ASESORIAS", password:"S!gaph2025F" },
+      { username:"aliado07", password:"S!gaph2025G" },
+      { username:"aliado08", password:"S!gaph2025H" },
+      { username:"aliado09", password:"S!gaph2025I" },
+      { username:"aliado10", password:"S!gaph2025J" }
     ];
 
-    if (!localStorage.getItem('ALIADOS_LIST')) localStorage.setItem('ALIADOS_LIST', JSON.stringify(DEFAULT_ALIADOS));
+    // Mostrar / ocultar contraseña
+    document.getElementById('togglePass').addEventListener('click', () => {
+      const input = document.getElementById('clave');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
 
+    // Inicio de sesión
     document.getElementById('entrarBtn').addEventListener('click', () => {
       const u = document.getElementById('usuario').value.trim();
       const p = document.getElementById('clave').value;
-      const aliados = JSON.parse(localStorage.getItem('ALIADOS_LIST') || '[]');
-      const found = aliados.find(a => a.username === u && a.password === p);
+      const found = ALIADOS.find(a => a.username === u && a.password === p);
       if (!found) {
         document.getElementById('err').textContent = "Usuario o contraseña incorrectos.";
         return;
       }
-      const safe = { username: found.username, nombre: found.nombre, displayName: found.displayName, email: found.email };
-      localStorage.setItem('aliado_autenticado', JSON.stringify(safe));
+      localStorage.setItem('aliado_autenticado', JSON.stringify(found));
       window.location.href = 'panel.html';
     });
-
-    // quick test: uncomment to prefill:
-    // document.getElementById('usuario').value='aliado01'; document.getElementById('clave').value='S!gaph2025A';
   </script>
 </body>
 </html>
