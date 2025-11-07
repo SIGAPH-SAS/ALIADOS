@@ -4,7 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Panel Aliados | SIGAPH S.A.S.</title>
+
+  <!-- jsPDF y html2canvas (para creación de PDF con imágenes) -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
   <style>
+    /* Mantengo el estilo que validaste (limpio y centrado) */
     body {
       font-family: 'Poppins', Arial, sans-serif;
       margin: 0;
@@ -12,7 +18,6 @@
       color: #333;
       text-align: center;
     }
-
     header {
       background: #fff;
       color: #0a7b40;
@@ -22,155 +27,47 @@
       align-items: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
-    .panel-logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 1;
+    .panel-logo { display: flex; align-items: center; justify-content: center; flex: 1; }
+    .panel-logo img { height: 60px; margin-right: 12px; }
+    nav { background: #0a7b40; padding: 10px; display: flex; justify-content: center; gap: 15px; }
+    nav button { background: #fff; color: #0a7b40; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    nav button:hover { background: #002b5c; color: #fff; }
+    main { padding: 20px; max-width: 1100px; margin: auto; text-align: left; }
+    section { display: none; margin-top: 20px; }
+    section.activo { display: block; }
+    .acciones { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+    .btn { padding: 10px 16px; background: #0a7b40; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+    .btn:hover { background: #086632; }
+    .logout-btn { background: #c0392b; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .logout-btn:hover { background: #a12e22; }
+    input, textarea, select { width: 100%; padding: 8px; margin: 6px 0; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; box-sizing: border-box; }
+    .readonly { background: #f0f0f0; }
+    .btn-aliado { display: inline-block; background: #002b5c; color: white; padding: 10px 14px; border: none; border-radius: 8px; margin: 6px; cursor: pointer; transition: all 0.2s; }
+    .btn-aliado:hover { background: #0a7b40; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
+    th { background: #e9f5ee; }
+    #logoCentral { display: block; margin: 30px auto; height: 120px; }
+    .mic-btn { background:#002b5c; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; margin-top:6px; }
+    .mic-btn:hover { background:#0a7b40; }
+    .small-note { font-size: 0.9rem; color: #555; margin-top:6px; }
+    .center { text-align:center; }
+    /* adaptaciones responsive */
+    @media (max-width:800px) {
+      main { padding: 12px; }
+      nav { flex-wrap:wrap; gap:8px; }
+      .btn-aliado { padding:8px 10px; font-size:0.9rem; }
     }
-
-    .panel-logo img {
-      height: 60px;
-      margin-right: 12px;
-    }
-
-    nav {
-      background: #0a7b40;
-      padding: 10px;
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    nav button {
-      background: #fff;
-      color: #0a7b40;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    nav button:hover {
-      background: #002b5c;
-      color: #fff;
-    }
-
-    main {
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    section {
-      display: none;
-      margin-top: 20px;
-    }
-
-    section.activo {
-      display: block;
-    }
-
-    .acciones {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .btn {
-      padding: 10px 16px;
-      background: #0a7b40;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.2s;
-    }
-
-    .btn:hover {
-      background: #086632;
-    }
-
-    .logout-btn {
-      background: #c0392b;
-      color: #fff;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .logout-btn:hover {
-      background: #a12e22;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 8px;
-      margin: 6px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-family: inherit;
-    }
-
-    .readonly {
-      background: #f0f0f0;
-    }
-
-    .btn-aliado {
-      display: inline-block;
-      background: #002b5c;
-      color: white;
-      padding: 10px 14px;
-      border: none;
-      border-radius: 8px;
-      margin: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-aliado:hover {
-      background: #0a7b40;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-
-    th {
-      background: #e9f5ee;
-    }
-
-    #logoCentral {
-      display: block;
-      margin: 30px auto;
-      height: 120px;
-    }
-
   </style>
 </head>
 <body>
   <header>
     <div class="panel-logo">
       <img id="logoUsuario" src="" alt="Logo Usuario">
-      <h1>SIGAPH — Panel de Aliados</h1>
+      <h1 style="color:#0a7b40">SIGAPH — Panel de Aliados</h1>
     </div>
-    <div>
-      <span id="bienvenida"></span>
+    <div style="text-align:right">
+      <div id="bienvenida" style="margin-bottom:6px"></div>
       <button id="cerrarSesion" class="logout-btn">Cerrar sesión</button>
     </div>
   </header>
@@ -184,16 +81,24 @@
   <main>
     <section id="inicio" class="activo">
       <img id="logoCentral" src="" alt="Logo central">
-      <h2>Bienvenido al Panel</h2>
-      <p>Desde aquí podrás generar reportes técnicos y visualizar información.</p>
+      <h2 class="center">Bienvenido al Panel</h2>
+      <p class="center">Desde aquí podrás generar reportes técnicos y visualizar información.</p>
     </section>
 
+    <!-- ====== REPORTE (modificado) ====== -->
     <section id="reporte">
-      <h2>Generar Reporte</h2>
-      <form id="reporteForm">
+      <h2 class="center">Generar Reporte</h2>
+
+      <form id="reporteForm" style="max-width:800px;margin:auto;">
+        <!-- Empresa (fijo, no editable) -->
         <label>Nombre de la empresa *</label>
         <input id="empresa" type="text" readonly class="readonly">
 
+        <!-- Campo obligatorio extra: Nombre y apellido de quien visita -->
+        <label>Nombre y apellido de la persona que visita *</label>
+        <input id="visitante" type="text" placeholder="Nombre y apellido" required>
+
+        <!-- Fecha y hora automáticas -->
         <label>Fecha *</label>
         <input id="fecha" type="date" readonly class="readonly">
 
@@ -201,100 +106,533 @@
         <input id="hora" type="time" readonly class="readonly">
 
         <label>Lugar o unidad residencial *</label>
-        <input id="lugar" required>
+        <input id="lugar" required placeholder="Dirección o unidad">
+
+        <hr style="margin:12px 0">
+
+        <!-- Tres anexos obligatorios (fotos) -->
+        <label>Foto 1 (obligatoria)</label>
+        <input id="foto1" type="file" accept="image/*" required>
+
+        <label>Foto 2 (obligatoria)</label>
+        <input id="foto2" type="file" accept="image/*" required>
+
+        <label>Foto 3 (obligatoria)</label>
+        <input id="foto3" type="file" accept="image/*" required>
+
+        <!-- Archivos adicionales opcionales -->
+        <label>Otras fotos (opcional)</label>
+        <input id="otrasFotos" type="file" accept="image/*" multiple>
+
+        <small class="small-note">Suba al menos las 3 fotos obligatorias para poder generar el informe.</small>
+
+        <hr style="margin:12px 0">
 
         <label>Descripción o diagnóstico *</label>
-        <textarea id="descripcion" rows="4" required></textarea>
+        <textarea id="descripcion" rows="5" required placeholder="Describa la visita..."></textarea>
+        <button type="button" class="mic-btn" onclick="activarDictado()">🎤 Dictar</button>
 
         <div class="acciones">
-          <button type="submit" class="btn">Finalizar / Enviar</button>
+          <button type="submit" class="btn">Finalizar / Enviar Reporte</button>
           <button type="button" class="btn" onclick="mostrarSeccion('inicio')">Volver</button>
         </div>
+
       </form>
     </section>
 
+    <!-- ====== CONTROL ====== -->
     <section id="control">
-      <h2>Control de Aliados</h2>
-      <div id="contenidoControl"></div>
-      <div id="detalleAliado"></div>
+      <h2 class="center">Control de Aliados</h2>
+      <div id="contenidoControl" class="center"></div>
+      <div id="detalleAliado" style="margin-top:18px;"></div>
     </section>
   </main>
 
   <script>
-    const auth = JSON.parse(localStorage.getItem('aliado_autenticado') || 'null');
-    if (!auth) window.location.href = 'login.html';
+  /************************************************************************
+   * Panel: autollenado, dictado, validaciones, creación PDF y almacenamiento
+   ************************************************************************/
 
-    const logoMap = {
-      'SIGAPH':'logo_sigaph1.png',
-      'CT_ELECTRIC':'logo_usuario2.png',
-      'CONSTRUCTORA_BETHEL':'logo_usuario3.png',
-      'COMUNIDAD_FELIZ':'logo_usuario4.png',
-      'TECHOS_RENTABLES':'logo_usuario5.png',
-      'JL_ASESORIAS':'logo_usuario6.png',
-      'aliado07':'logo_usuario7.png',
-      'aliado08':'logo_usuario8.png',
-      'aliado09':'logo_usuario9.png',
-      'aliado10':'logo_usuario10.png'
+  // obtener autenticación previa (guardada por login)
+  const auth = JSON.parse(localStorage.getItem('aliado_autenticado') || 'null');
+  if (!auth) {
+    // si no hay sesión, volver al login
+    window.location.href = 'login.html';
+  }
+
+  // mapas de logos (igual que antes)
+  const logoMap = {
+    'SIGAPH':'logo_sigaph1.png','CT_ELECTRIC':'logo_usuario2.png','CONSTRUCTORA_BETHEL':'logo_usuario3.png',
+    'COMUNIDAD_FELIZ':'logo_usuario4.png','TECHOS_RENTABLES':'logo_usuario5.png','JL_ASESORIAS':'logo_usuario6.png',
+    'aliado07':'logo_usuario7.png','aliado08':'logo_usuario8.png','aliado09':'logo_usuario9.png','aliado10':'logo_usuario10.png'
+  };
+  document.getElementById('logoUsuario').src = logoMap[auth.username] || 'logo_sigaph1.png';
+  document.getElementById('logoCentral').src = logoMap[auth.username] || 'logo_sigaph1.png';
+  document.getElementById('bienvenida').textContent = `Bienvenido, ${auth.username}`;
+
+  // cerrar sesión
+  document.getElementById('cerrarSesion').addEventListener('click', () => {
+    localStorage.removeItem('aliado_autenticado');
+    window.location.href = 'login.html';
+  });
+
+  // navegación
+  window.mostrarSeccion = id => {
+    document.querySelectorAll('main section').forEach(s => s.classList.remove('activo'));
+    document.getElementById(id).classList.add('activo');
+    if (id === 'reporte') autollenarFormulario();
+    if (id === 'control') inicializarControl();
+  };
+
+  // autollenado form
+  function autollenarFormulario() {
+    const hoy = new Date();
+    document.getElementById('empresa').value = auth.username;
+    document.getElementById('fecha').value = hoy.toISOString().split('T')[0];
+    document.getElementById('hora').value = hoy.toTimeString().slice(0,5);
+    // limpiar posibles valores previos (si reaparece el formulario)
+    document.getElementById('visitante').value = '';
+    document.getElementById('lugar').value = '';
+    document.getElementById('descripcion').value = '';
+    document.getElementById('foto1').value = '';
+    document.getElementById('foto2').value = '';
+    document.getElementById('foto3').value = '';
+    document.getElementById('otrasFotos').value = '';
+  }
+
+  // dictado por voz
+  function activarDictado() {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome/Edge.');
+      return;
+    }
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.start();
+
+    recognition.onresult = (event) => {
+      const texto = event.results[0][0].transcript;
+      const textarea = document.getElementById('descripcion');
+      textarea.value = (textarea.value ? textarea.value + ' ' : '') + texto;
     };
 
-    document.getElementById('logoUsuario').src = logoMap[auth.username] || 'logo_sigaph1.png';
-    document.getElementById('logoCentral').src = logoMap[auth.username] || 'logo_sigaph1.png';
-    document.getElementById('bienvenida').textContent = `Bienvenido, ${auth.username}`;
+    recognition.onerror = (e) => {
+      console.error('Speech error', e);
+      alert('Error al usar el micrófono.');
+    };
+  }
 
-    document.getElementById('cerrarSesion').addEventListener('click', ()=>{
-      localStorage.removeItem('aliado_autenticado');
-      window.location.href = 'login.html';
+  /****************************************************************
+   * Generador de PDF (jsPDF + html2canvas)
+   * - valida campos (incluye 3 fotos obligatorias)
+   * - genera un PDF con encabezado + diagnóstico preliminar
+   * - inserta fotos en páginas siguientes
+   * - guarda el PDF (base64) en localStorage por aliado
+   * - copia el registro al SIGAPH
+   ****************************************************************/
+
+  // util: leer un File -> dataURL (promesa)
+  function fileToDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = reject;
+      fr.readAsDataURL(file);
+    });
+  }
+
+  // heurística simple para generar el "diagnóstico preliminar" desde la descripción
+  function generarDiagnosticoPreliminar(descripcion, visitante, lugar, archivosFotos) {
+    // - tomar primeras oraciones
+    const primeras = descripcion.split(/[\.\n]/).filter(Boolean).slice(0,2).join('. ') + (descripcion.includes('.') ? '.' : '');
+    // - generar bullets de observaciones básicas
+    const observaciones = [
+      `Visitado por: ${visitante}`,
+      `Ubicación: ${lugar}`,
+      `Se adjuntaron ${archivosFotos.length} foto(s).`
+    ];
+    // - sugerencias automáticas (heurísticas)
+    const sugerencias = [];
+    if (/falla|daño|provoca|humedad|cortocircuito|cable|roto|filtración/i.test(descripcion)) {
+      sugerencias.push('Revisión técnica urgente recomendada.');
+    } else {
+      sugerencias.push('Evaluación de condiciones y propuesta de interventoría si es requerida.');
+    }
+
+    // crear texto final
+    const encabezado = primeras;
+    const bullets = observaciones.concat([''] ,['Sugerencias:'], sugerencias);
+    return { encabezado, bullets };
+  }
+
+  // función que crea y guarda PDF
+  async function crearYGuardarPDF({ empresa, visitante, fecha, hora, lugar, descripcion, archivos }) {
+    // usar jsPDF para armar el PDF (tamaño A4 portrait)
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' }); // puntos
+
+    // Margenes
+    const marginLeft = 40;
+    const maxWidth = 515; // ancho util
+
+    // encabezado visual (empresa y logo)
+    doc.setFontSize(12);
+    // si existe logo, intentamos dibujarla (si no, lo omitimos)
+    try {
+      const logoSrc = logoMap[auth.username] || 'logo_sigaph1.png';
+      // si el logo existe como archivo local no podemos garantizar pre-carga, pero intentamos cargarlo si está en dataURL
+      // intentaremos leerlo desde la misma carpeta con fetch no disponible (file://). Entonces solo dibujaremos si se pasó en archivos.
+    } catch (e) {
+      // noop
+    }
+
+    // Encabezado textual
+    doc.setFontSize(14);
+    doc.setTextColor(0, 70, 33);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${empresa}`, marginLeft, 60); // nombre de la empresa (aliado)
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0);
+    doc.text(`Reporte generado por: ${visitante}`, marginLeft, 80);
+    doc.text(`Fecha: ${fecha}    Hora: ${hora}`, marginLeft, 96);
+    doc.text(`Ubicación: ${lugar}`, marginLeft, 112);
+
+    doc.setLineWidth(0.6);
+    doc.line(marginLeft, 122, marginLeft + maxWidth, 122);
+
+    // Título centrado: DIAGNÓSTICO PRELIMINAR
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DIAGNÓSTICO PRELIMINAR', 300, 150, { align: 'center' });
+
+    // Generar diagnóstico heurístico
+    const diag = generarDiagnosticoPreliminar(descripcion, visitante, lugar, archivos);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+
+    // Encabezado del diagnóstico (parrafo)
+    const startY = 180;
+    const splitText = doc.splitTextToSize(diag.encabezado, maxWidth);
+    doc.text(splitText, marginLeft, startY);
+
+    // Bullets / Observaciones
+    let currentY = startY + (splitText.length * 14) + 8;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Observaciones y puntos clave:', marginLeft, currentY);
+    currentY += 16;
+    doc.setFont('helvetica', 'normal');
+    diag.bullets.forEach(line => {
+      const lines = doc.splitTextToSize(line, maxWidth);
+      doc.text(lines, marginLeft + 8, currentY);
+      currentY += lines.length * 12 + 6;
     });
 
-    window.mostrarSeccion = id=>{
-      document.querySelectorAll('main section').forEach(s=>s.classList.remove('activo'));
-      document.getElementById(id).classList.add('activo');
-      if(id==='reporte') autollenarFormulario();
-      if(id==='control') inicializarControl();
+    // Espacio para diagnóstico más detallado (tomado de la descripción)
+    currentY += 6;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Detalle del diagnóstico:', marginLeft, currentY);
+    currentY += 16;
+    doc.setFont('helvetica', 'normal');
+    const descripcionSplit = doc.splitTextToSize(descripcion, maxWidth);
+    // si falta espacio en la página añadimos página nueva
+    if (currentY + descripcionSplit.length * 12 > 760) {
+      doc.addPage();
+      currentY = 40;
+    }
+    doc.text(descripcionSplit, marginLeft, currentY);
+    currentY += descripcionSplit.length * 12 + 12;
+
+    // Añadir fotos: 1 foto por bloque; si hay muchas se agregan páginas nuevas
+    // Convertir todos los archivos (File) a DataURLs
+    const fotosData = [];
+    for (const f of archivos) {
+      if (f && f.type && f.type.startsWith('image/')) {
+        try { fotosData.push(await fileToDataURL(f)); } catch(e){ console.warn('Error leyendo foto', e); }
+      }
+    }
+
+    // insertar fotos en PDF (rejilla 2 por página si necesario)
+    const imgMaxWidth = 260;
+    const imgMaxHeight = 180;
+    let x = marginLeft, y = currentY;
+    let col = 0;
+    for (let i = 0; i < fotosData.length; i++) {
+      const dataUrl = fotosData[i];
+      // antes de dibujar, verificar espacio
+      if (y + imgMaxHeight + 40 > 820) {
+        doc.addPage();
+        y = 40;
+        x = marginLeft;
+        col = 0;
+      }
+      // agregar la imagen
+      try {
+        doc.addImage(dataUrl, 'JPEG', x, y, imgMaxWidth, imgMaxHeight, undefined, 'FAST');
+      } catch (e) {
+        // como fallback intentar PNG
+        try { doc.addImage(dataUrl, 'PNG', x, y, imgMaxWidth, imgMaxHeight); } catch (err) { console.warn('no se pudo dibujar imagen', err); }
+      }
+
+      // leyenda debajo de la foto (nombre archivo)
+      const nombre = archivos[i].name || (`Foto ${i+1}`);
+      const leyendaY = y + imgMaxHeight + 12;
+      doc.setFontSize(9);
+      doc.text(nombre, x, leyendaY);
+
+      // avanzar a la siguiente columna/posición
+      if (col === 0) {
+        x = marginLeft + imgMaxWidth + 20;
+        col = 1;
+      } else {
+        // nueva fila
+        x = marginLeft;
+        col = 0;
+        y += imgMaxHeight + 40;
+      }
+      doc.setFontSize(11);
+    }
+
+    // Pie de página con firma y datos
+    const finalPage = doc.getNumberOfPages();
+    doc.setPage(finalPage);
+    const footerY = 820;
+    doc.setLineWidth(0.4);
+    doc.line(marginLeft, footerY - 18, marginLeft + maxWidth, footerY - 18);
+    doc.setFontSize(10);
+    doc.text(`Generado por: ${empresa} — Reporte enviado por: ${visitante}`, marginLeft, footerY - 2);
+    doc.text(`Fecha: ${fecha}    Hora: ${hora}`, marginLeft, footerY + 10);
+
+    // crear nombre de archivo
+    const filename = `${empresa.replace(/\s+/g,'_')}_Reporte_${fecha}_${hora.replace(':','')}.pdf`;
+
+    // Generar base64 (datauri)
+    const pdfDataUri = doc.output('datauristring');
+
+    // Guardar en localStorage como reporte simplificado
+    const reporteObj = {
+      id: 'r_' + Date.now(),
+      empresa,
+      visitante,
+      fecha,
+      hora,
+      lugar,
+      descripcion,
+      archivosNombres: archivos.map(f => f.name || ''),
+      pdfDataUri,
+      creadoEn: new Date().toISOString()
     };
 
-    function autollenarFormulario(){
-      const hoy = new Date();
-      document.getElementById('empresa').value = auth.username;
-      document.getElementById('fecha').value = hoy.toISOString().split('T')[0];
-      document.getElementById('hora').value = hoy.toTimeString().slice(0,5);
+    // Guardar por aliado (colocar en reportes_<username>)
+    const claveAliado = 'reportes_' + (auth.username || empresa);
+    const prev = JSON.parse(localStorage.getItem(claveAliado) || '[]');
+    prev.unshift(reporteObj); // al inicio
+    localStorage.setItem(claveAliado, JSON.stringify(prev));
+
+    // Copiar a SIGAPH para control central (si ya existe, sino crear)
+    const claveSIG = 'reportes_SIGAPH';
+    const prevSIG = JSON.parse(localStorage.getItem(claveSIG) || '[]');
+    // Hacemos una copia para SIGAPH con indicación del aliado origen
+    const copiaParaSIG = Object.assign({}, reporteObj, { origenAliado: auth.username });
+    prevSIG.unshift(copiaParaSIG);
+    localStorage.setItem(claveSIG, JSON.stringify(prevSIG));
+
+    // Forzar actualización del área de control si estamos en esa sección
+    if (document.getElementById('control').classList.contains('activo')) {
+      inicializarControl(); // re-renderiza controles y reportes
     }
 
-    // Control de aliados funcional
-    function inicializarControl(){
-      const cont = document.getElementById('contenidoControl');
-      const detalle = document.getElementById('detalleAliado');
-      if(auth.username !== 'SIGAPH'){
-        cont.innerHTML = "<p style='color:#c0392b'>Solo el usuario principal SIGAPH puede acceder al control general.</p>";
-        detalle.innerHTML = "";
-        return;
-      }
+    // Forzar descarga inmediata del PDF en el navegador
+    // creamos un enlace y lo clickeamos para descargar
+    const a = document.createElement('a');
+    a.href = pdfDataUri;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
-      const aliados = ['CT_ELECTRIC','CONSTRUCTORA_BETHEL','COMUNIDAD_FELIZ','TECHOS_RENTABLES','JL_ASESORIAS','aliado07','aliado08','aliado09','aliado10'];
-      cont.innerHTML = "<p>Seleccione un aliado para ver sus reportes:</p>" + aliados.map(a=>`<button class='btn-aliado' onclick='verReportes("${a}")'>${a}</button>`).join('');
-    }
+    return reporteObj;
+  } // fin crearYGuardarPDF
 
-    // Mostrar reportes simulados (preparado para PDF reales)
-    function verReportes(nombre){
-      const detalle = document.getElementById('detalleAliado');
-      const reportes = JSON.parse(localStorage.getItem('reportes_'+nombre) || '[]');
-      if(reportes.length === 0){
-        detalle.innerHTML = `<h3>Reportes de ${nombre}</h3><p>No hay reportes registrados aún.</p>`;
-        return;
-      }
-      let html = `<h3>Reportes de ${nombre}</h3><table><thead><tr><th>PDF</th><th>Fecha</th><th>Descripción</th></tr></thead><tbody>`;
-      reportes.forEach(r=>{
-        html += `<tr><td><a href='${r.pdf}' target='_blank'>Ver PDF</a></td><td>${r.fecha}</td><td>${r.descripcion}</td></tr>`;
+  // Listener submit del formulario
+  document.getElementById('reporteForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+
+    // validaciones
+    const visitante = document.getElementById('visitante').value.trim();
+    const lugar = document.getElementById('lugar').value.trim();
+    const descripcion = document.getElementById('descripcion').value.trim();
+    const fecha = document.getElementById('fecha').value;
+    const hora = document.getElementById('hora').value;
+    if (!visitante) { alert('Debe indicar nombre y apellido de la persona que visita.'); return; }
+    if (!lugar) { alert('Indique la unidad o lugar visitado.'); return; }
+    if (!descripcion) { alert('La descripción es obligatoria.'); return; }
+
+    // leer archivos obligatorios
+    const f1 = document.getElementById('foto1').files[0];
+    const f2 = document.getElementById('foto2').files[0];
+    const f3 = document.getElementById('foto3').files[0];
+    if (!f1 || !f2 || !f3) { alert('Debe adjuntar las 3 fotos obligatorias.'); return; }
+
+    // otras fotos opcionales
+    const otras = Array.from(document.getElementById('otrasFotos').files || []);
+
+    // reunir todos los archivos en array (mantenergy orden)
+    const archivos = [f1, f2, f3].concat(otras);
+
+    // Bloquear UI mínimo (simple)
+    const submitBtn = ev.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Generando PDF...';
+
+    try {
+      const reporte = await crearYGuardarPDF({
+        empresa: document.getElementById('empresa').value || auth.username,
+        visitante,
+        fecha,
+        hora,
+        lugar,
+        descripcion,
+        archivos
       });
-      html += `</tbody></table>`;
-      detalle.innerHTML = html;
+
+      // feedback
+      alert('Reporte generado y guardado correctamente.\nSe ha guardado en tus reportes y enviado copia a SIGAPH.');
+      // volver a inicio y reactivar botón
+      mostrarSeccion('inicio');
+    } catch (err) {
+      console.error('Error generando reporte', err);
+      alert('Ocurrió un error al generar el PDF. Revisa la consola.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Finalizar / Enviar Reporte';
+    }
+  });
+
+  /****************************************************************
+   * CONTROL DE ALIADOS:
+   * - solo SIGAPH ve botones de aliados y sus reportes
+   * - se muestra el listado y al hacer click se muestran los reportes
+   ****************************************************************/
+  function inicializarControl() {
+    const cont = document.getElementById('contenidoControl');
+    const detalle = document.getElementById('detalleAliado');
+    detalle.innerHTML = '';
+
+    if (auth.username !== 'SIGAPH') {
+      cont.innerHTML = "<p style='color:#c0392b'>Solo el usuario principal SIGAPH puede acceder al control general.</p>";
+      return;
     }
 
-    document.getElementById('reporteForm').addEventListener('submit',e=>{
-      e.preventDefault();
-      alert('Reporte generado exitosamente para ' + auth.username);
-      mostrarSeccion('inicio');
+    // listado de aliados (sin incluir SIGAPH)
+    const aliados = ['CT_ELECTRIC','CONSTRUCTORA_BETHEL','COMUNIDAD_FELIZ','TECHOS_RENTABLES','JL_ASESORIAS','aliado07','aliado08','aliado09','aliado10'];
+    cont.innerHTML = "<p>Seleccione un aliado para ver sus reportes:</p>" +
+      aliados.map(a => `<button class='btn-aliado' onclick='verReportes(\"${a}\")'>${a}</button>`).join('') +
+      "<br><br><button class='btn' onclick='verReporteGeneral()'>📋 Reporte General</button>";
+  }
+
+  // ver reportes de un aliado: lee localStorage reportes_<ALIADO>
+  window.verReportes = function(nombre) {
+    const detalle = document.getElementById('detalleAliado');
+    const key = 'reportes_' + nombre;
+    const reportes = JSON.parse(localStorage.getItem(key) || '[]');
+
+    if (!reportes || reportes.length === 0) {
+      detalle.innerHTML = `<h3>Reportes de ${nombre}</h3><p>No hay reportes registrados aún.</p>`;
+      return;
+    }
+
+    let html = `<h3>Reportes de ${nombre}</h3><table><thead><tr>
+      <th>ID</th><th>Fecha</th><th>Visitante</th><th>Descripción</th><th>PDF</th>
+    </tr></thead><tbody>`;
+
+    reportes.forEach(r => {
+      html += `<tr>
+        <td>${r.id}</td>
+        <td>${r.fecha} ${r.hora}</td>
+        <td>${r.visitante}</td>
+        <td style="text-align:left">${(r.descripcion || '').slice(0,140)}${(r.descripcion && r.descripcion.length>140 ? '...' : '')}</td>
+        <td><button class="btn" onclick="abrirPDF_base64('${r.pdfDataUri.replace(/'/g,"\\'")}')">Ver PDF</button></td>
+      </tr>`;
     });
+
+    html += `</tbody></table>`;
+    detalle.innerHTML = html;
+  };
+
+  // abrir PDF a partir de dataURI (nuevo tab)
+  window.abrirPDF_base64 = function(dataUri) {
+    // abrir en ventana nueva
+    const w = window.open("");
+    if (!w) { alert('La ventana emergente fue bloqueada. Permite popups para ver el PDF.'); return; }
+    // crear iframe con el PDF
+    w.document.write("<iframe width='100%' height='100%' src='" + dataUri + "'></iframe>");
+  };
+
+  // Ver reporte general (muestra checklist y permite guardar estado en localStorage)
+  window.verReporteGeneral = function() {
+    const detalle = document.getElementById('detalleAliado');
+    const aliados = ['CT_ELECTRIC','CONSTRUCTORA_BETHEL','COMUNIDAD_FELIZ','TECHOS_RENTABLES','JL_ASESORIAS','aliado07','aliado08','aliado09','aliado10'];
+
+    // cargar estados previos
+    const estadoKey = 'estado_reporte_general';
+    const estadoPrev = JSON.parse(localStorage.getItem(estadoKey) || '{}');
+
+    let html = `<h3>Reporte General de Seguimiento</h3><table><thead>
+      <tr><th>Aliado</th><th>Revisado</th><th>Enviado Adm.</th><th>Enviado Cliente</th><th>Observaciones</th></tr>
+    </thead><tbody>`;
+
+    aliados.forEach(a => {
+      const e = estadoPrev[a] || { revisado:false, enviadoAdm:false, enviadoCliente:false, obs: '' };
+      html += `<tr>
+        <td>${a}</td>
+        <td><input type="checkbox" data-aliado="${a}" class="chk-revisado" ${e.revisado ? 'checked' : ''}></td>
+        <td><input type="checkbox" data-aliado="${a}" class="chk-enviadoAdm" ${e.enviadoAdm ? 'checked' : ''}></td>
+        <td><input type="checkbox" data-aliado="${a}" class="chk-enviadoCli" ${e.enviadoCliente ? 'checked' : ''}></td>
+        <td><textarea rows="1" data-aliado="${a}" class="txt-obs">${e.obs || ''}</textarea></td>
+      </tr>`;
+    });
+
+    html += `</tbody></table><div style="margin-top:12px"><button class="btn" id="guardarEstado">Guardar seguimiento</button></div>`;
+    detalle.innerHTML = html;
+
+    // guardar acción
+    document.getElementById('guardarEstado').addEventListener('click', () => {
+      const nuevoEstado = {};
+      document.querySelectorAll('.chk-revisado').forEach(ch => {
+        const ali = ch.getAttribute('data-aliado');
+        if (!nuevoEstado[ali]) nuevoEstado[ali] = {};
+        nuevoEstado[ali].revisado = ch.checked;
+      });
+      document.querySelectorAll('.chk-enviadoAdm').forEach(ch => {
+        const ali = ch.getAttribute('data-aliado');
+        if (!nuevoEstado[ali]) nuevoEstado[ali] = {};
+        nuevoEstado[ali].enviadoAdm = ch.checked;
+      });
+      document.querySelectorAll('.chk-enviadoCli').forEach(ch => {
+        const ali = ch.getAttribute('data-aliado');
+        if (!nuevoEstado[ali]) nuevoEstado[ali] = {};
+        nuevoEstado[ali].enviadoCliente = ch.checked;
+      });
+      document.querySelectorAll('.txt-obs').forEach(t => {
+        const ali = t.getAttribute('data-aliado');
+        if (!nuevoEstado[ali]) nuevoEstado[ali] = {};
+        nuevoEstado[ali].obs = t.value;
+      });
+
+      localStorage.setItem(estadoKey, JSON.stringify(nuevoEstado));
+      alert('Seguimiento guardado correctamente.');
+    });
+  };
+
+  // cuando cargue la página, si control está activo, inicializar
+  document.addEventListener('DOMContentLoaded', () => {
+    // Si venimos con la sección control en el hash
+    const hash = location.hash.replace('#','');
+    if (hash && document.getElementById(hash)) mostrarSeccion(hash);
+  });
   </script>
 </body>
 </html>
