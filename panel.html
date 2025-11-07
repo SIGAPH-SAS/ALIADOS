@@ -143,6 +143,11 @@
     <!-- ====== CONTROL ====== -->
     <section id="control">
       <h2 class="center">Control de Aliados</h2>
+<div id="contenedor-reportes" style="margin-top: 20px; text-align:center;">
+  <h3 style="color:#004d26;">📋 Reportes registrados</h3>
+  <div id="lista-reportes" style="margin-top:15px;"></div>
+</div>
+
       <div id="contenidoControl" class="center"></div>
       <div id="detalleAliado" style="margin-top:18px;"></div>
     </section>
@@ -633,12 +638,10 @@
     const hash = location.hash.replace('#','');
     if (hash && document.getElementById(hash)) mostrarSeccion(hash);
   });
-  </script>
 <!-- Firebase SDK -->
 <script type="module">
-  // Importar funciones desde Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
   // Configuración de Firebase
   const firebaseConfig = {
@@ -650,20 +653,46 @@
     appId: "1:344109913077:web:d4eeaf385e5d64ab87c6bc"
   };
 
-  // Inicializar Firebase
+  // Inicializar Firebase y Firestore
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Ejemplo: obtener y mostrar reportes en consola
-  async function obtenerReportes() {
-    const querySnapshot = await getDocs(collection(db, "reportes"));
-    querySnapshot.forEach((doc) => {
-      console.log(`${doc.id} =>`, doc.data());
-    });
+  // Función para mostrar reportes
+  async function mostrarReportes() {
+    const lista = document.getElementById("lista-reportes");
+    lista.innerHTML = "<p>Cargando reportes...</p>";
+
+    try {
+      const querySnapshot = await getDocs(collection(db, "reportes"));
+      if (querySnapshot.empty) {
+        lista.innerHTML = "<p>No hay reportes registrados aún.</p>";
+        return;
+      }
+
+      lista.innerHTML = ""; // Limpia contenido
+      querySnapshot.forEach((doc) => {
+        const datos = doc.data();
+        const item = document.createElement("div");
+        item.style.margin = "10px auto";
+        item.style.border = "1px solid #004d26";
+        item.style.padding = "10px";
+        item.style.borderRadius = "8px";
+        item.style.width = "60%";
+        item.style.background = "#f9f9f9";
+        item.innerHTML = `
+          <strong>Empresa:</strong> ${datos.usuario || "Sin nombre"}<br>
+          <strong>Título:</strong> ${datos.titulo || "Sin título"}<br>
+          <strong>Descripción:</strong> ${datos.descripcion || "Sin descripción"}<br>
+        `;
+        lista.appendChild(item);
+      });
+    } catch (error) {
+      lista.innerHTML = `<p style="color:red;">Error al cargar reportes: ${error.message}</p>`;
+    }
   }
 
-  // Llamar función de prueba
-  obtenerReportes();
+  // Ejecutar al cargar la página
+  mostrarReportes();
 </script>
 
 
