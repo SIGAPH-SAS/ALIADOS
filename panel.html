@@ -143,11 +143,7 @@
     <!-- ====== CONTROL ====== -->
     <section id="control">
       <h2 class="center">Control de Aliados</h2>
-<div id="contenedor-reportes" style="margin-top: 20px; text-align:center;">
-  <h3 style="color:#004d26;">📋 Reportes registrados</h3>
-  <div id="lista-reportes" style="margin-top:15px;"></div>
-</div>
-<div id="contenidoControl" class="center"></div>
+      <div id="contenidoControl" class="center"></div>
       <div id="detalleAliado" style="margin-top:18px;"></div>
     </section>
   </main>
@@ -576,98 +572,166 @@
   };
 
   // Ver reporte general (muestra checklist y permite guardar estado en localStorage)
-  window.verReporteGeneral = function() {
-    const detalle = document.getElementById('detalleAliado');
-    const aliados = ['CT_ELECTRIC','CONSTRUCTORA_BETHEL','COMUNIDAD_FELIZ','TECHOS_RENTABLES','JL_ASESORIAS','aliado07','aliado08','aliado09','aliado10'];
+window.verReporteGeneral = function() {
+  const detalle = document.getElementById('detalleAliado');
+  const aliados = [
+    'CT_ELECTRIC','CONSTRUCTORA_BETHEL','COMUNIDAD_FELIZ',
+    'TECHOS_RENTABLES','JL_ASESORIAS','aliado07','aliado08','aliado09','aliado10'
+  ];
 
-    // cargar estados previos
-    const estadoKey = 'estado_reporte_general';
-    const estadoPrev = JSON.parse(localStorage.getItem(estadoKey) || '{}');
+  const seguimientoKey = 'seguimiento_visitas_SIGAPH';
+  const seguimientoPrev = JSON.parse(localStorage.getItem(seguimientoKey) || '{}');
 
-    let html = `<h3>Reporte General de Seguimiento</h3><table><thead>
-      <tr><th>Aliado</th><th>Revisado</th><th>Enviado Adm.</th><th>Enviado Cliente</th><th>Observaciones</th></tr>
-    </thead><tbody>`;
-
-    aliados.forEach(a => {
-      const e = estadoPrev[a] || { revisado:false, enviadoAdm:false, enviadoCliente:false, obs: '' };
-      html += `<tr>
-        <td>${a}</td>
-        <td><input type="checkbox" data-aliado="${a}" class="chk-revisado" ${e.revisado ? 'checked' : ''}></td>
-        <td><input type="checkbox" data-aliado="${a}" class="chk-enviadoAdm" ${e.enviadoAdm ? 'checked' : ''}></td>
-        <td><input type="checkbox" data-aliado="${a}" class="chk-enviadoCli" ${e.enviadoCliente ? 'checked' : ''}></td>
-        <td><textarea rows="1" data-aliado="${a}" class="txt-obs">${e.obs || ''}</textarea></td>
-      </tr>`;
+  // Recolectar todos los reportes guardados de todos los aliados
+  let registros = [];
+  aliados.forEach(aliado => {
+    const data = JSON.parse(localStorage.getItem('reportes_' + aliado) || '[]');
+    data.forEach(rep => {
+      const id = rep.id || ('rep_' + Math.random().toString(36).substring(2, 9));
+      const seguimiento = (seguimientoPrev[id]) || {
+        estado: 'Pendiente',
+        prioridad: 'Media',
+        responsable: '',
+        fecha: '',
+        obs: ''
+      };
+      registros.push({
+        id,
+        aliado,
+        fecha: rep.fecha || '',
+        hora: rep.hora || '',
+        visitante: rep.visitante || '',
+        lugar: rep.lugar || '',
+        descripcion: rep.descripcion ? rep.descripcion.slice(0, 100) : '',
+        ...seguimiento
+      });
     });
-
-    html += `</tbody></table><div style="margin-top:12px"><button class="btn" id="guardarEstado">Guardar seguimiento</button></div>`;
-    detalle.innerHTML = html;
-
-    // guardar acción
-    document.getElementById('guardarEstado').addEventListener('click', () => {
-      const nuevoEstado = {};
-      document.querySelectorAll('.chk-revisado').forEach(ch => {
-        const ali = ch.getAttribute('data-aliado');
-        if (!nuevoEstado[ali]) nuevoEstado[ali] = {};
-        nuevoEstado[ali].revisado = ch.checked;
-      });
-      document.querySelectorAll('.chk-enviadoAdm').forEach(ch => {
-        const ali = ch.getAttribute('data-aliado');
-        if (!nuevoEstado[ali]) nuevoEstado[ali] = {};
-        nuevoEstado[ali].enviadoAdm = ch.checked;
-      });
-      document.querySelectorAll('.chk-enviadoCli').forEach(ch => {
-        const ali = ch.getAttribute('data-aliado');
-        if (!nuevoEstado[ali]) nuevoEstado[ali] = {};
-        nuevoEstado[ali].enviadoCliente = ch.checked;
-      });
-      document.querySelectorAll('.txt-obs').forEach(t => {
-        const ali = t.getAttribute('data-aliado');
-        if (!nuevoEstado[ali]) nuevoEstado[ali] = {};
-        nuevoEstado[ali].obs = t.value;
-      });
-
-      localStorage.setItem(estadoKey, JSON.stringify(nuevoEstado));
-      alert('Seguimiento guardado correctamente.');
-    });
-  };
-
-  // cuando cargue la página, si control está activo, inicializar
-  document.addEventListener('DOMContentLoaded', () => {
-    // Si venimos con la sección control en el hash
-    const hash = location.hash.replace('#','');
-    if (hash && document.getElementById(hash)) mostrarSeccion(hash);
   });
-  </script>
-<!-- Firebase SDK -->
-<script type="module">
-  // Importar funciones desde Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  // Configuración de Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyBh8T3NQ10qEKaQU0WKt8u3mM_yPv9-aPk",
-    authDomain: "sigaph-reportes.firebaseapp.com",
-    projectId: "sigaph-reportes",
-    storageBucket: "sigaph-reportes.firebasestorage.app",
-    messagingSenderId: "344109913077",
-    appId: "1:344109913077:web:d4eeaf385e5d64ab87c6bc"
-  };
+  // HTML principal
+  let html = `
+    <h3>CRM de Seguimiento — Visitas de Aliados</h3>
+    <div style="margin-bottom:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+  <input type="text" id="buscarCRM" placeholder="Buscar aliado o visitante..." style="padding:8px; flex:1;">
+  <button class="btn" id="btnBuscar" style="display:flex; align-items:center; gap:5px;">
+    🔍 Buscar
+  </button>
+  <select id="filtroEstado" style="padding:8px;">
+    <option value="">Todos los estados</option>
+    <option value="Pendiente">Pendiente</option>
+    <option value="En proceso">En proceso</option>
+    <option value="Finalizado">Finalizado</option>
+  </select>
+  <button class="btn" id="exportarExcel">📊 Exportar a Excel</button>
+</div>
 
-  // Inicializar Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    <table>
+      <thead>
+        <tr>
+          <th>Aliado</th>
+          <th>Fecha</th>
+          <th>Visitante</th>
+          <th>Lugar</th>
+          <th>Descripción breve</th>
+          <th>Estado</th>
+          <th>Prioridad</th>
+          <th>Responsable</th>
+          <th>Fecha gestión</th>
+          <th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyCRM"></tbody>
+    </table>
+    <div style="margin-top:12px"><button class="btn" id="guardarSeguimiento">💾 Guardar Seguimiento</button></div>
+  `;
 
-  // Ejemplo: obtener y mostrar reportes en consola
-  async function obtenerReportes() {
-    const querySnapshot = await getDocs(collection(db, "reportes"));
-    querySnapshot.forEach((doc) => {
-      console.log(`${doc.id} =>`, doc.data());
+  detalle.innerHTML = html;
+  const tbody = document.getElementById('tbodyCRM');
+
+  // Renderizar filas
+  registros.forEach(r => {
+    const colorEstado =
+      r.estado === 'Finalizado' ? 'green' :
+      r.estado === 'En proceso' ? 'orange' : 'red';
+    tbody.innerHTML += `
+      <tr data-id="${r.id}">
+        <td>${r.aliado}</td>
+        <td>${r.fecha || ''}</td>
+        <td>${r.visitante || ''}</td>
+        <td>${r.lugar || ''}</td>
+        <td style="text-align:left">${r.descripcion}</td>
+        <td>
+          <select class="sel-estado" style="color:${colorEstado}">
+            <option ${r.estado==='Pendiente'?'selected':''}>Pendiente</option>
+            <option ${r.estado==='En proceso'?'selected':''}>En proceso</option>
+            <option ${r.estado==='Finalizado'?'selected':''}>Finalizado</option>
+          </select>
+        </td>
+        <td>
+          <select class="sel-prioridad">
+            <option ${r.prioridad==='Alta'?'selected':''}>Alta</option>
+            <option ${r.prioridad==='Media'?'selected':''}>Media</option>
+            <option ${r.prioridad==='Baja'?'selected':''}>Baja</option>
+          </select>
+        </td>
+        <td><input type="text" class="txt-responsable" value="${r.responsable || ''}" placeholder="Encargado"></td>
+        <td><input type="date" class="txt-fecha" value="${r.fecha_gestion || ''}"></td>
+        <td><textarea rows="1" class="txt-obs">${r.obs || ''}</textarea></td>
+      </tr>
+    `;
+  });
+
+  // Filtrado en vivo
+  document.getElementById('buscarCRM').addEventListener('input', filtrar);
+  document.getElementById('filtroEstado').addEventListener('change', filtrar);
+document.getElementById('btnBuscar').addEventListener('click', filtrar);
+
+
+  function filtrar() {
+    const texto = document.getElementById('buscarCRM').value.toLowerCase();
+    const estadoSel = document.getElementById('filtroEstado').value;
+    tbody.querySelectorAll('tr').forEach(tr => {
+      const aliado = tr.children[0].textContent.toLowerCase();
+      const visitante = tr.children[2].textContent.toLowerCase();
+      const estado = tr.querySelector('.sel-estado').value;
+      const visible =
+        (!texto || aliado.includes(texto) || visitante.includes(texto)) &&
+        (!estadoSel || estado === estadoSel);
+      tr.style.display = visible ? '' : 'none';
     });
   }
 
-  // Llamar función de prueba
-  obtenerReportes();
+  // Guardar cambios
+  document.getElementById('guardarSeguimiento').addEventListener('click', () => {
+    const nuevo = {};
+    tbody.querySelectorAll('tr').forEach(tr => {
+      const id = tr.dataset.id;
+      nuevo[id] = {
+        estado: tr.querySelector('.sel-estado').value,
+        prioridad: tr.querySelector('.sel-prioridad').value,
+        responsable: tr.querySelector('.txt-responsable').value,
+        fecha_gestion: tr.querySelector('.txt-fecha').value,
+        obs: tr.querySelector('.txt-obs').value
+      };
+    });
+    localStorage.setItem(seguimientoKey, JSON.stringify(nuevo));
+    alert('✅ Seguimiento de visitas actualizado correctamente.');
+  });
+
+  // Exportar a Excel
+  document.getElementById('exportarExcel').addEventListener('click', () => {
+    const wb = XLSX.utils.table_to_book(document.querySelector('table'), { sheet: "CRM_VISITAS" });
+    XLSX.writeFile(wb, 'CRM_Visitas_SIGAPH.xlsx');
+  });
+
+  // Cargar librería Excel si no está presente
+  if (typeof XLSX === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    document.body.appendChild(script);
+  }
+};
 </script>
+
 </body>
 </html>
