@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Panel Aliados | SIGAPH S.A.S.</title>
 
-  <!-- jsPDF y html2canvas (para creación de PDF con imágenes) -->
+  <!-- Librerías -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
-    /* Mantengo el estilo que validaste (limpio y centrado) */
     body {
       font-family: 'Poppins', Arial, sans-serif;
       margin: 0;
@@ -27,37 +26,84 @@
       align-items: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .panel-logo { display: flex; align-items: center; justify-content: center; flex: 1; }
     .panel-logo img { height: 60px; margin-right: 12px; }
-    nav { background: #0a7b40; padding: 10px; display: flex; justify-content: center; gap: 15px; }
-    nav button { background: #fff; color: #0a7b40; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    nav {
+      background: #0a7b40;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    nav button {
+      background: #fff;
+      color: #0a7b40;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
     nav button:hover { background: #002b5c; color: #fff; }
     main { padding: 20px; max-width: 1100px; margin: auto; text-align: left; }
     section { display: none; margin-top: 20px; }
     section.activo { display: block; }
-    .acciones { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-    .btn { padding: 10px 16px; background: #0a7b40; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-    .btn:hover { background: #086632; }
-    .logout-btn { background: #c0392b; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .logout-btn {
+      background: #c0392b; color: #fff; border: none;
+      padding: 8px 12px; border-radius: 6px;
+      cursor: pointer; font-weight: bold;
+    }
     .logout-btn:hover { background: #a12e22; }
-    input, textarea, select { width: 100%; padding: 8px; margin: 6px 0; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; box-sizing: border-box; }
-    .readonly { background: #f0f0f0; }
-    .btn-aliado { display: inline-block; background: #002b5c; color: white; padding: 10px 14px; border: none; border-radius: 8px; margin: 6px; cursor: pointer; transition: all 0.2s; }
-    .btn-aliado:hover { background: #0a7b40; }
+    iframe {
+      width: 100%; border: none; border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #e9f5ee; }
     #logoCentral { display: block; margin: 30px auto; height: 120px; }
-    .mic-btn { background:#002b5c; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; margin-top:6px; }
-    .mic-btn:hover { background:#0a7b40; }
-    .small-note { font-size: 0.9rem; color: #555; margin-top:6px; }
-    .center { text-align:center; }
-    /* adaptaciones responsive */
-    @media (max-width:800px) {
-      main { padding: 12px; }
-      nav { flex-wrap:wrap; gap:8px; }
-      .btn-aliado { padding:8px 10px; font-size:0.9rem; }
+    .center { text-align: center; }
+
+    /* --- LÍNEA DE TIEMPO --- */
+    .timeline-container { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.1); padding:20px; }
+    .timeline-tabs { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:10px; }
+    .timeline-tab { background:#e9f5ee; border:none; border-radius:8px; padding:8px 14px; font-weight:600; cursor:pointer; transition:0.2s; }
+    .timeline-tab.active { background:#0a7b40; color:#fff; transform:scale(1.05); }
+    .timeline-step-small {
+      width:26px; height:26px; border-radius:5px;
+      line-height:26px; font-size:0.8rem;
+      color:#fff; cursor:pointer; transition:0.2s; margin:2px;
     }
+    .timeline-step-small:hover { transform:scale(1.1); }
+    .timeline-compact { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin:10px 0; }
+    .timeline-controls select, .timeline-controls textarea {
+      width:100%; padding:8px; border-radius:6px; border:1px solid #ccc; margin-bottom:6px;
+    }
+    .timeline-controls button {
+      padding:8px; border:none; border-radius:6px;
+      background:#0a7b40; color:#fff; font-weight:600; cursor:pointer;
+    }
+    .timeline-controls button:hover { background:#086632; }
+    .sub-item {
+      background:#f9fafc; border-radius:10px; padding:10px; margin-bottom:12px;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,0.05);
+    }
+    .sub-timeline { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; justify-content:flex-start; }
+    .sub-timeline div {
+      width:26px; height:26px; border-radius:5px; line-height:26px;
+      font-size:0.8rem; color:#fff; cursor:pointer; transition:0.2s;
+    }
+    .sub-timeline div:hover { transform:scale(1.1); }
+    #tablaResumen td { font-size:0.9rem; }
+    #tablaResumen th { font-size:0.95rem; }
+    #detalleSubprocesos {
+      margin-top:20px; background:#f7f9fb; border-radius:10px;
+      padding:12px; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.05);
+    }
+    .subResumenTitulo { margin:10px 0 6px; font-weight:600; color:#0a7b40; }
+    .subResumenItem { font-size:0.9rem; margin-left:10px; }
+    @media(max-width:800px){ main{padding:12px;} nav{flex-wrap:wrap;gap:8px;} iframe{height:820px!important;} }
   </style>
 </head>
 <body>
@@ -76,662 +122,236 @@
     <button onclick="mostrarSeccion('inicio')">Inicio</button>
     <button onclick="mostrarSeccion('reporte')">Generar Reporte</button>
     <button onclick="mostrarSeccion('control')">Control de Aliados</button>
+    <button id="btnSolicitudes" style="display:none" onclick="mostrarSeccion('solicitudes')">Solicitudes de Visitas</button>
+    <button id="btnLinea" style="display:none" onclick="mostrarSeccion('linea')">Línea de Tiempo</button>
   </nav>
 
   <main>
     <section id="inicio" class="activo">
       <img id="logoCentral" src="" alt="Logo central">
       <h2 class="center">Bienvenido al Panel</h2>
-      <p class="center">Desde aquí podrás generar reportes técnicos y visualizar información.</p>
     </section>
 
-    <!-- ====== REPORTE (modificado) ====== -->
     <section id="reporte">
       <h2 class="center">Generar Reporte</h2>
-
-      <form id="reporteForm" style="max-width:800px;margin:auto;">
-        <!-- Empresa (fijo, no editable) -->
-        <label>Nombre de la empresa *</label>
-        <input id="empresa" type="text" readonly class="readonly">
-
-        <!-- Campo obligatorio extra: Nombre y apellido de quien visita -->
-        <label>Nombre y apellido de la persona que visita *</label>
-        <input id="visitante" type="text" placeholder="Nombre y apellido" required>
-
-        <!-- Fecha y hora automáticas -->
-        <label>Fecha *</label>
-        <input id="fecha" type="date" readonly class="readonly">
-
-        <label>Hora *</label>
-        <input id="hora" type="time" readonly class="readonly">
-
-        <label>Lugar o unidad residencial *</label>
-        <input id="lugar" required placeholder="Dirección o unidad">
-
-        <hr style="margin:12px 0">
-
-        <!-- Tres anexos obligatorios (fotos) -->
-        <label>Foto 1 (obligatoria)</label>
-        <input id="foto1" type="file" accept="image/*" required>
-
-        <label>Foto 2 (obligatoria)</label>
-        <input id="foto2" type="file" accept="image/*" required>
-
-        <label>Foto 3 (obligatoria)</label>
-        <input id="foto3" type="file" accept="image/*" required>
-
-        <!-- Archivos adicionales opcionales -->
-        <label>Otras fotos (opcional)</label>
-        <input id="otrasFotos" type="file" accept="image/*" multiple>
-
-        <small class="small-note">Suba al menos las 3 fotos obligatorias para poder generar el informe.</small>
-
-        <hr style="margin:12px 0">
-
-        <label>Descripción o diagnóstico *</label>
-        <textarea id="descripcion" rows="5" required placeholder="Describa la visita..."></textarea>
-        <button type="button" class="mic-btn" onclick="activarDictado()">🎤 Dictar</button>
-
-        <div class="acciones">
-          <button type="submit" class="btn">Finalizar / Enviar Reporte</button>
-          <button type="button" class="btn" onclick="mostrarSeccion('inicio')">Volver</button>
-        </div>
-
-      </form>
+      <div style="max-width:950px;margin:auto;">
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe2l1I7ZkyPesXxULiuM27ILql3F4WuZjAKowacitFStuHCJA/viewform?embedded=true" width="100%" height="1550"></iframe>
+      </div>
     </section>
 
-    <!-- ====== CONTROL ====== -->
     <section id="control">
       <h2 class="center">Control de Aliados</h2>
-      <div id="contenidoControl" class="center"></div>
-      <div id="detalleAliado" style="margin-top:18px;"></div>
+      <div id="reporteSigaph" style="display:none; margin-top:20px;">
+        <iframe src="https://docs.google.com/spreadsheets/d/1ksfjkGYY7WXh-FYAJ6TC2l1T8cja_XCanY8wPq_Bcrg/edit?usp=drive_link&widget=true&headers=false" width="100%" height="750"></iframe>
+      </div>
+    </section>
+
+    <section id="linea">
+      <h2 class="center">Línea de Tiempo — Seguimiento Detallado</h2>
+      <div class="timeline-container">
+        <div class="timeline-tabs" id="timelineTabs"></div>
+        <div id="timelineContent">
+          <h3 id="timelineTitle" class="center">Seleccione un subproceso</h3>
+          <div id="timelineCompact" class="timeline-compact"></div>
+
+          <div class="timeline-controls">
+            <label>Fase actual:</label>
+            <select id="faseSelect">
+              <option value="0">Seleccione fase</option>
+              <option value="1">1. Diagnóstico</option>
+              <option value="2">2. Informe preliminar</option>
+              <option value="3">3. Informe aliado</option>
+              <option value="4">4. Cotización</option>
+              <option value="5">5. Enviado cliente</option>
+              <option value="6">6. Espera</option>
+              <option value="7">7. Seguimiento</option>
+              <option value="8">8. Toc toc</option>
+              <option value="9">9. Resultado</option>
+              <option value="10">10. Finalizado</option>
+            </select>
+            <label>Resultado:</label>
+            <select id="resultadoSelect">
+              <option value="">Sin resultado</option>
+              <option value="aprobado">Aprobado</option>
+              <option value="rechazado">Rechazado</option>
+            </select>
+            <textarea id="observaciones" rows="3" placeholder="Observaciones..."></textarea>
+            <button id="guardarFase">Guardar Avance</button>
+            <button id="nuevoSub">Agregar Subproceso</button>
+          </div>
+
+          <div class="subprocesos-area" id="subArea"></div>
+
+          <div id="listadoGeneral" style="margin-top:25px;">
+            <h3 class="center">Resumen General</h3>
+            <table id="tablaResumen">
+              <thead><tr><th>#</th><th>Cliente / Unidad</th><th>Fase</th><th>Subprocesos</th><th>Avance</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div id="detalleSubprocesos"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="solicitudes">
+      <h2 class="center">Solicitudes de Visitas</h2>
+      <div style="max-width:1200px;margin:auto;">
+        <iframe src="https://docs.google.com/spreadsheets/d/1ObxC_cbiPOW3u4cGLk__7NmrJLIVTagiyy_NJwd1QO8/edit?usp=drive_link&widget=true&headers=false" width="100%" height="750"></iframe>
+      </div>
     </section>
   </main>
 
   <script>
-  /************************************************************************
-   * Panel: autollenado, dictado, validaciones, creación PDF y almacenamiento
-   ************************************************************************/
+  const auth=JSON.parse(localStorage.getItem('aliado_autenticado')||'null');
+  if(!auth)window.location.href='login.html';
+  const logoMap={'SIGAPH':'logo_sigaph1.png'};
+  document.getElementById('logoUsuario').src=logoMap[auth.username]||'logo_sigaph1.png';
+  document.getElementById('logoCentral').src=logoMap[auth.username]||'logo_sigaph1.png';
+  document.getElementById('bienvenida').textContent=`Bienvenido, ${auth.username}`;
+  if(auth.username==='SIGAPH'){
+    document.getElementById('btnSolicitudes').style.display='inline-block';
+    document.getElementById('reporteSigaph').style.display='block';
+    document.getElementById('btnLinea').style.display='inline-block';
+  }
+  document.getElementById('cerrarSesion').onclick=()=>{localStorage.removeItem('aliado_autenticado');window.location='login.html';};
+  window.mostrarSeccion=id=>{document.querySelectorAll('main section').forEach(s=>s.classList.remove('activo'));document.getElementById(id).classList.add('activo');};
 
-  // obtener autenticación previa (guardada por login)
-  const auth = JSON.parse(localStorage.getItem('aliado_autenticado') || 'null');
-  if (!auth) {
-    // si no hay sesión, volver al login
-    window.location.href = 'login.html';
+  const fases=[{id:1,color:'#FFD54F'},{id:2,color:'#FFB74D'},{id:3,color:'#BA68C8'},{id:4,color:'#64B5F6'},{id:5,color:'#42A5F5'},{id:6,color:'#9CCC65'},{id:7,color:'#7CB342'},{id:8,color:'#558B2F'},{id:9,color:'#388E3C'},{id:10,color:'#2E7D32'}];
+  const tabs=document.getElementById('timelineTabs');
+  const title=document.getElementById('timelineTitle');
+  const compact=document.getElementById('timelineCompact');
+  const faseSel=document.getElementById('faseSelect');
+  const resSel=document.getElementById('resultadoSelect');
+  const obs=document.getElementById('observaciones');
+  const subArea=document.getElementById('subArea');
+  const resumen=document.querySelector('#tablaResumen tbody');
+  const detalleSub=document.getElementById('detalleSubprocesos');
+  let data=JSON.parse(localStorage.getItem('timelineData2')||'{}');
+  let actual=null;
+
+  // campo de nombre manual
+  const nameInput=document.createElement('input');
+  nameInput.type='text';
+  nameInput.placeholder='Nombre del cliente o unidad...';
+  nameInput.style.cssText='display:none;width:60%;padding:8px;margin:10px auto;display:block;border-radius:8px;border:1px solid #ccc;font-size:1rem;text-align:center;';
+  title.parentNode.insertBefore(nameInput,title.nextSibling);
+
+  for(let i=1;i<=20;i++){
+    const b=document.createElement('button');
+    b.textContent=i;
+    b.className='timeline-tab';
+    b.onclick=()=>sel(i);
+    tabs.appendChild(b);
   }
 
-  // mapas de logos (igual que antes)
-  const logoMap = {
-    'SIGAPH':'logo_sigaph1.png','CT_ELECTRIC':'logo_usuario2.png','CONSTRUCTORA_BETHEL':'logo_usuario3.png',
-    'COMUNIDAD_FELIZ':'logo_usuario4.png','TECHOS_RENTABLES':'logo_usuario5.png','JL_ASESORIAS':'logo_usuario6.png',
-    'aliado07':'logo_usuario7.png','aliado08':'logo_usuario8.png','aliado09':'logo_usuario9.png','aliado10':'logo_usuario10.png'
-  };
-  document.getElementById('logoUsuario').src = logoMap[auth.username] || 'logo_sigaph1.png';
-  document.getElementById('logoCentral').src = logoMap[auth.username] || 'logo_sigaph1.png';
-  document.getElementById('bienvenida').textContent = `Bienvenido, ${auth.username}`;
+  function sel(n){
+    actual=n;
+    [...tabs.children].forEach(b=>b.classList.remove('active'));
+    tabs.children[n-1].classList.add('active');
 
-  // cerrar sesión
-  document.getElementById('cerrarSesion').addEventListener('click', () => {
-    localStorage.removeItem('aliado_autenticado');
-    window.location.href = 'login.html';
-  });
-
-  // navegación
-  window.mostrarSeccion = id => {
-    document.querySelectorAll('main section').forEach(s => s.classList.remove('activo'));
-    document.getElementById(id).classList.add('activo');
-    if (id === 'reporte') autollenarFormulario();
-    if (id === 'control') inicializarControl();
-  };
-
-  // autollenado form
-  function autollenarFormulario() {
-    const hoy = new Date();
-    document.getElementById('empresa').value = auth.username;
-    document.getElementById('fecha').value = hoy.toISOString().split('T')[0];
-    document.getElementById('hora').value = hoy.toTimeString().slice(0,5);
-    // limpiar posibles valores previos (si reaparece el formulario)
-    document.getElementById('visitante').value = '';
-    document.getElementById('lugar').value = '';
-    document.getElementById('descripcion').value = '';
-    document.getElementById('foto1').value = '';
-    document.getElementById('foto2').value = '';
-    document.getElementById('foto3').value = '';
-    document.getElementById('otrasFotos').value = '';
-  }
-
-  // dictado por voz
-  function activarDictado() {
-    if (!('webkitSpeechRecognition' in window)) {
-      alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome/Edge.');
-      return;
-    }
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = 'es-ES';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.start();
-
-    recognition.onresult = (event) => {
-      const texto = event.results[0][0].transcript;
-      const textarea = document.getElementById('descripcion');
-      textarea.value = (textarea.value ? textarea.value + ' ' : '') + texto;
+    if(!data[n])data[n]={nombre:'',fase:0,resultado:'',obs:'',subs:[]};
+    nameInput.style.display='block';
+    nameInput.value=data[n].nombre||'';
+    title.textContent=data[n].nombre?`Subproceso ${n} — ${data[n].nombre}`:`Subproceso ${n}`;
+    nameInput.oninput=()=>{
+      data[n].nombre=nameInput.value.trim();
+      save();
+      title.textContent=data[n].nombre?`Subproceso ${n} — ${data[n].nombre}`:`Subproceso ${n}`;
+      rendResumen();
     };
 
-    recognition.onerror = (e) => {
-      console.error('Speech error', e);
-      alert('Error al usar el micrófono.');
-    };
+    faseSel.value=data[n].fase;
+    resSel.value=data[n].resultado;
+    obs.value=data[n].obs;
+    rendCompact(data[n].fase);
+    rendSubs(n);
+    rendResumen();
   }
 
-  /****************************************************************
-   * Generador de PDF (jsPDF + html2canvas)
-   * - valida campos (incluye 3 fotos obligatorias)
-   * - genera un PDF con encabezado + diagnóstico preliminar
-   * - inserta fotos en páginas siguientes
-   * - guarda el PDF (base64) en localStorage por aliado
-   * - copia el registro al SIGAPH
-   ****************************************************************/
+  function rendCompact(f){
+    compact.innerHTML='';
+    for(let i=1;i<=10;i++){
+      const d=document.createElement('div');
+      d.className='timeline-step-small';
+      d.textContent=i;
+      d.style.background=f>=i?fases[i-1].color:'#ccc';
+      d.onclick=()=>{data[actual].fase=i;save();rendCompact(i);rendResumen();};
+      compact.appendChild(d);
+    }
+  }
 
-  // util: leer un File -> dataURL (promesa)
-  function fileToDataURL(file) {
-    return new Promise((resolve, reject) => {
-      const fr = new FileReader();
-      fr.onload = () => resolve(fr.result);
-      fr.onerror = reject;
-      fr.readAsDataURL(file);
+  function rendSubs(n){
+    subArea.innerHTML='';
+    const subs=data[n].subs||[];
+    subs.forEach((s,i)=>{
+      const div=document.createElement('div');
+      div.className='sub-item';
+      div.innerHTML=`<strong>${i+1}. ${s.nombre}</strong>`;
+      const tl=document.createElement('div');
+      tl.className='sub-timeline';
+      for(let j=1;j<=10;j++){
+        const b=document.createElement('div');
+        b.textContent=j;
+        b.style.background=s.fase>=j?fases[j-1].color:'#ccc';
+        b.onclick=()=>{s.fase=j;save();rendSubs(n);rendResumen();};
+        tl.appendChild(b);
+      }
+      div.appendChild(tl);
+      subArea.appendChild(div);
     });
   }
 
-  // heurística simple para generar el "diagnóstico preliminar" desde la descripción
-  function generarDiagnosticoPreliminar(descripcion, visitante, lugar, archivosFotos) {
-    // - tomar primeras oraciones
-    const primeras = descripcion.split(/[\.\n]/).filter(Boolean).slice(0,2).join('. ') + (descripcion.includes('.') ? '.' : '');
-    // - generar bullets de observaciones básicas
-    const observaciones = [
-      `Visitado por: ${visitante}`,
-      `Ubicación: ${lugar}`,
-      `Se adjuntaron ${archivosFotos.length} foto(s).`
-    ];
-    // - sugerencias automáticas (heurísticas)
-    const sugerencias = [];
-    if (/falla|daño|provoca|humedad|cortocircuito|cable|roto|filtración/i.test(descripcion)) {
-      sugerencias.push('Revisión técnica urgente recomendada.');
-    } else {
-      sugerencias.push('Evaluación de condiciones y propuesta de interventoría si es requerida.');
-    }
-
-    // crear texto final
-    const encabezado = primeras;
-    const bullets = observaciones.concat([''] ,['Sugerencias:'], sugerencias);
-    return { encabezado, bullets };
-  }
-
-  // función que crea y guarda PDF
-  async function crearYGuardarPDF({ empresa, visitante, fecha, hora, lugar, descripcion, archivos }) {
-    // usar jsPDF para armar el PDF (tamaño A4 portrait)
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'pt', format: 'a4' }); // puntos
-
-    // Margenes
-    const marginLeft = 40;
-    const maxWidth = 515; // ancho util
-
-    // encabezado visual (empresa y logo)
-    doc.setFontSize(12);
-    // si existe logo, intentamos dibujarla (si no, lo omitimos)
-    try {
-      const logoSrc = logoMap[auth.username] || 'logo_sigaph1.png';
-      // si el logo existe como archivo local no podemos garantizar pre-carga, pero intentamos cargarlo si está en dataURL
-      // intentaremos leerlo desde la misma carpeta con fetch no disponible (file://). Entonces solo dibujaremos si se pasó en archivos.
-    } catch (e) {
-      // noop
-    }
-
-    // Encabezado textual
-    doc.setFontSize(14);
-    doc.setTextColor(0, 70, 33);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${empresa}`, marginLeft, 60); // nombre de la empresa (aliado)
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(0);
-    doc.text(`Reporte generado por: ${visitante}`, marginLeft, 80);
-    doc.text(`Fecha: ${fecha}    Hora: ${hora}`, marginLeft, 96);
-    doc.text(`Ubicación: ${lugar}`, marginLeft, 112);
-
-    doc.setLineWidth(0.6);
-    doc.line(marginLeft, 122, marginLeft + maxWidth, 122);
-
-    // Título centrado: DIAGNÓSTICO PRELIMINAR
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('DIAGNÓSTICO PRELIMINAR', 300, 150, { align: 'center' });
-
-    // Generar diagnóstico heurístico
-    const diag = generarDiagnosticoPreliminar(descripcion, visitante, lugar, archivos);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-
-    // Encabezado del diagnóstico (parrafo)
-    const startY = 180;
-    const splitText = doc.splitTextToSize(diag.encabezado, maxWidth);
-    doc.text(splitText, marginLeft, startY);
-
-    // Bullets / Observaciones
-    let currentY = startY + (splitText.length * 14) + 8;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Observaciones y puntos clave:', marginLeft, currentY);
-    currentY += 16;
-    doc.setFont('helvetica', 'normal');
-    diag.bullets.forEach(line => {
-      const lines = doc.splitTextToSize(line, maxWidth);
-      doc.text(lines, marginLeft + 8, currentY);
-      currentY += lines.length * 12 + 6;
-    });
-
-    // Espacio para diagnóstico más detallado (tomado de la descripción)
-    currentY += 6;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Detalle del diagnóstico:', marginLeft, currentY);
-    currentY += 16;
-    doc.setFont('helvetica', 'normal');
-    const descripcionSplit = doc.splitTextToSize(descripcion, maxWidth);
-    // si falta espacio en la página añadimos página nueva
-    if (currentY + descripcionSplit.length * 12 > 760) {
-      doc.addPage();
-      currentY = 40;
-    }
-    doc.text(descripcionSplit, marginLeft, currentY);
-    currentY += descripcionSplit.length * 12 + 12;
-
-    // Añadir fotos: 1 foto por bloque; si hay muchas se agregan páginas nuevas
-    // Convertir todos los archivos (File) a DataURLs
-    const fotosData = [];
-    for (const f of archivos) {
-      if (f && f.type && f.type.startsWith('image/')) {
-        try { fotosData.push(await fileToDataURL(f)); } catch(e){ console.warn('Error leyendo foto', e); }
-      }
-    }
-
-    // insertar fotos en PDF (rejilla 2 por página si necesario)
-    const imgMaxWidth = 260;
-    const imgMaxHeight = 180;
-    let x = marginLeft, y = currentY;
-    let col = 0;
-    for (let i = 0; i < fotosData.length; i++) {
-      const dataUrl = fotosData[i];
-      // antes de dibujar, verificar espacio
-      if (y + imgMaxHeight + 40 > 820) {
-        doc.addPage();
-        y = 40;
-        x = marginLeft;
-        col = 0;
-      }
-      // agregar la imagen
-      try {
-        doc.addImage(dataUrl, 'JPEG', x, y, imgMaxWidth, imgMaxHeight, undefined, 'FAST');
-      } catch (e) {
-        // como fallback intentar PNG
-        try { doc.addImage(dataUrl, 'PNG', x, y, imgMaxWidth, imgMaxHeight); } catch (err) { console.warn('no se pudo dibujar imagen', err); }
-      }
-
-      // leyenda debajo de la foto (nombre archivo)
-      const nombre = archivos[i].name || (`Foto ${i+1}`);
-      const leyendaY = y + imgMaxHeight + 12;
-      doc.setFontSize(9);
-      doc.text(nombre, x, leyendaY);
-
-      // avanzar a la siguiente columna/posición
-      if (col === 0) {
-        x = marginLeft + imgMaxWidth + 20;
-        col = 1;
-      } else {
-        // nueva fila
-        x = marginLeft;
-        col = 0;
-        y += imgMaxHeight + 40;
-      }
-      doc.setFontSize(11);
-    }
-
-    // Pie de página con firma y datos
-    const finalPage = doc.getNumberOfPages();
-    doc.setPage(finalPage);
-    const footerY = 820;
-    doc.setLineWidth(0.4);
-    doc.line(marginLeft, footerY - 18, marginLeft + maxWidth, footerY - 18);
-    doc.setFontSize(10);
-    doc.text(`Generado por: ${empresa} — Reporte enviado por: ${visitante}`, marginLeft, footerY - 2);
-    doc.text(`Fecha: ${fecha}    Hora: ${hora}`, marginLeft, footerY + 10);
-
-    // crear nombre de archivo
-    const filename = `${empresa.replace(/\s+/g,'_')}_Reporte_${fecha}_${hora.replace(':','')}.pdf`;
-
-    // Generar base64 (datauri)
-    const pdfDataUri = doc.output('datauristring');
-
-    // Guardar en localStorage como reporte simplificado
-    const reporteObj = {
-      id: 'r_' + Date.now(),
-      empresa,
-      visitante,
-      fecha,
-      hora,
-      lugar,
-      descripcion,
-      archivosNombres: archivos.map(f => f.name || ''),
-      pdfDataUri,
-      creadoEn: new Date().toISOString()
-    };
-
-    // Guardar por aliado (colocar en reportes_<username>)
-    const claveAliado = 'reportes_' + (auth.username || empresa);
-    const prev = JSON.parse(localStorage.getItem(claveAliado) || '[]');
-    prev.unshift(reporteObj); // al inicio
-    localStorage.setItem(claveAliado, JSON.stringify(prev));
-
-    // Copiar a SIGAPH para control central (si ya existe, sino crear)
-    const claveSIG = 'reportes_SIGAPH';
-    const prevSIG = JSON.parse(localStorage.getItem(claveSIG) || '[]');
-    // Hacemos una copia para SIGAPH con indicación del aliado origen
-    const copiaParaSIG = Object.assign({}, reporteObj, { origenAliado: auth.username });
-    prevSIG.unshift(copiaParaSIG);
-    localStorage.setItem(claveSIG, JSON.stringify(prevSIG));
-
-    // Forzar actualización del área de control si estamos en esa sección
-    if (document.getElementById('control').classList.contains('activo')) {
-      inicializarControl(); // re-renderiza controles y reportes
-    }
-
-    // Forzar descarga inmediata del PDF en el navegador
-    // creamos un enlace y lo clickeamos para descargar
-    const a = document.createElement('a');
-    a.href = pdfDataUri;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    return reporteObj;
-  } // fin crearYGuardarPDF
-
-  // Listener submit del formulario
-  document.getElementById('reporteForm').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-
-    // validaciones
-    const visitante = document.getElementById('visitante').value.trim();
-    const lugar = document.getElementById('lugar').value.trim();
-    const descripcion = document.getElementById('descripcion').value.trim();
-    const fecha = document.getElementById('fecha').value;
-    const hora = document.getElementById('hora').value;
-    if (!visitante) { alert('Debe indicar nombre y apellido de la persona que visita.'); return; }
-    if (!lugar) { alert('Indique la unidad o lugar visitado.'); return; }
-    if (!descripcion) { alert('La descripción es obligatoria.'); return; }
-
-    // leer archivos obligatorios
-    const f1 = document.getElementById('foto1').files[0];
-    const f2 = document.getElementById('foto2').files[0];
-    const f3 = document.getElementById('foto3').files[0];
-    if (!f1 || !f2 || !f3) { alert('Debe adjuntar las 3 fotos obligatorias.'); return; }
-
-    // otras fotos opcionales
-    const otras = Array.from(document.getElementById('otrasFotos').files || []);
-
-    // reunir todos los archivos en array (mantenergy orden)
-    const archivos = [f1, f2, f3].concat(otras);
-
-    // Bloquear UI mínimo (simple)
-    const submitBtn = ev.target.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Generando PDF...';
-
-    try {
-      const reporte = await crearYGuardarPDF({
-        empresa: document.getElementById('empresa').value || auth.username,
-        visitante,
-        fecha,
-        hora,
-        lugar,
-        descripcion,
-        archivos
-      });
-
-      // feedback
-      alert('Reporte generado y guardado correctamente.\nSe ha guardado en tus reportes y enviado copia a SIGAPH.');
-      // volver a inicio y reactivar botón
-      mostrarSeccion('inicio');
-    } catch (err) {
-      console.error('Error generando reporte', err);
-      alert('Ocurrió un error al generar el PDF. Revisa la consola.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Finalizar / Enviar Reporte';
-    }
-  });
-
-  /****************************************************************
-   * CONTROL DE ALIADOS:
-   * - solo SIGAPH ve botones de aliados y sus reportes
-   * - se muestra el listado y al hacer click se muestran los reportes
-   ****************************************************************/
-  function inicializarControl() {
-    const cont = document.getElementById('contenidoControl');
-    const detalle = document.getElementById('detalleAliado');
-    detalle.innerHTML = '';
-
-    if (auth.username !== 'SIGAPH') {
-      cont.innerHTML = "<p style='color:#c0392b'>Solo el usuario principal SIGAPH puede acceder al control general.</p>";
-      return;
-    }
-
-    // listado de aliados (sin incluir SIGAPH)
-    const aliados = ['CT_ELECTRIC','CONSTRUCTORA_BETHEL','COMUNIDAD_FELIZ','TECHOS_RENTABLES','JL_ASESORIAS','aliado07','aliado08','aliado09','aliado10'];
-    cont.innerHTML = "<p>Seleccione un aliado para ver sus reportes:</p>" +
-      aliados.map(a => `<button class='btn-aliado' onclick='verReportes(\"${a}\")'>${a}</button>`).join('') +
-      "<br><br><button class='btn' onclick='verReporteGeneral()'>📋 Reporte General</button>";
-  }
-
-  // ver reportes de un aliado: lee localStorage reportes_<ALIADO>
-  window.verReportes = function(nombre) {
-    const detalle = document.getElementById('detalleAliado');
-    const key = 'reportes_' + nombre;
-    const reportes = JSON.parse(localStorage.getItem(key) || '[]');
-
-    if (!reportes || reportes.length === 0) {
-      detalle.innerHTML = `<h3>Reportes de ${nombre}</h3><p>No hay reportes registrados aún.</p>`;
-      return;
-    }
-
-    let html = `<h3>Reportes de ${nombre}</h3><table><thead><tr>
-      <th>ID</th><th>Fecha</th><th>Visitante</th><th>Descripción</th><th>PDF</th>
-    </tr></thead><tbody>`;
-
-    reportes.forEach(r => {
-      html += `<tr>
-        <td>${r.id}</td>
-        <td>${r.fecha} ${r.hora}</td>
-        <td>${r.visitante}</td>
-        <td style="text-align:left">${(r.descripcion || '').slice(0,140)}${(r.descripcion && r.descripcion.length>140 ? '...' : '')}</td>
-        <td><button class="btn" onclick="abrirPDF_base64('${r.pdfDataUri.replace(/'/g,"\\'")}')">Ver PDF</button></td>
-      </tr>`;
-    });
-
-    html += `</tbody></table>`;
-    detalle.innerHTML = html;
+  document.getElementById('guardarFase').onclick=()=>{
+    if(!actual)return;
+    data[actual].fase=parseInt(faseSel.value);
+    data[actual].resultado=resSel.value;
+    data[actual].obs=obs.value;
+    save();
+    rendCompact(data[actual].fase);
+    rendResumen();
   };
 
-  // abrir PDF a partir de dataURI (nuevo tab)
-  window.abrirPDF_base64 = function(dataUri) {
-    // abrir en ventana nueva
-    const w = window.open("");
-    if (!w) { alert('La ventana emergente fue bloqueada. Permite popups para ver el PDF.'); return; }
-    // crear iframe con el PDF
-    w.document.write("<iframe width='100%' height='100%' src='" + dataUri + "'></iframe>");
+  document.getElementById('nuevoSub').onclick=()=>{
+    if(!actual)return;
+    const nom=prompt('Nombre del subproceso');
+    if(nom){
+      data[actual].subs.push({nombre:nom,fase:0});
+      save();
+      rendSubs(actual);
+      rendResumen();
+    }
   };
 
-  // Ver reporte general (muestra checklist y permite guardar estado en localStorage)
-window.verReporteGeneral = function() {
-  const detalle = document.getElementById('detalleAliado');
-  const aliados = [
-    'CT_ELECTRIC','CONSTRUCTORA_BETHEL','COMUNIDAD_FELIZ',
-    'TECHOS_RENTABLES','JL_ASESORIAS','aliado07','aliado08','aliado09','aliado10'
-  ];
+  function save(){ localStorage.setItem('timelineData2',JSON.stringify(data)); }
 
-  const seguimientoKey = 'seguimiento_visitas_SIGAPH';
-  const seguimientoPrev = JSON.parse(localStorage.getItem(seguimientoKey) || '{}');
-
-  // Recolectar todos los reportes guardados de todos los aliados
-  let registros = [];
-  aliados.forEach(aliado => {
-    const data = JSON.parse(localStorage.getItem('reportes_' + aliado) || '[]');
-    data.forEach(rep => {
-      const id = rep.id || ('rep_' + Math.random().toString(36).substring(2, 9));
-      const seguimiento = (seguimientoPrev[id]) || {
-        estado: 'Pendiente',
-        prioridad: 'Media',
-        responsable: '',
-        fecha: '',
-        obs: ''
-      };
-      registros.push({
-        id,
-        aliado,
-        fecha: rep.fecha || '',
-        hora: rep.hora || '',
-        visitante: rep.visitante || '',
-        lugar: rep.lugar || '',
-        descripcion: rep.descripcion ? rep.descripcion.slice(0, 100) : '',
-        ...seguimiento
-      });
-    });
-  });
-
-  // HTML principal
-  let html = `
-    <h3>CRM de Seguimiento — Visitas de Aliados</h3>
-    <div style="margin-bottom:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-  <input type="text" id="buscarCRM" placeholder="Buscar aliado o visitante..." style="padding:8px; flex:1;">
-  <button class="btn" id="btnBuscar" style="display:flex; align-items:center; gap:5px;">
-    🔍 Buscar
-  </button>
-  <select id="filtroEstado" style="padding:8px;">
-    <option value="">Todos los estados</option>
-    <option value="Pendiente">Pendiente</option>
-    <option value="En proceso">En proceso</option>
-    <option value="Finalizado">Finalizado</option>
-  </select>
-  <button class="btn" id="exportarExcel">📊 Exportar a Excel</button>
-</div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Aliado</th>
-          <th>Fecha</th>
-          <th>Visitante</th>
-          <th>Lugar</th>
-          <th>Descripción breve</th>
-          <th>Estado</th>
-          <th>Prioridad</th>
-          <th>Responsable</th>
-          <th>Fecha gestión</th>
-          <th>Observaciones</th>
-        </tr>
-      </thead>
-      <tbody id="tbodyCRM"></tbody>
-    </table>
-    <div style="margin-top:12px"><button class="btn" id="guardarSeguimiento">💾 Guardar Seguimiento</button></div>
-  `;
-
-  detalle.innerHTML = html;
-  const tbody = document.getElementById('tbodyCRM');
-
-  // Renderizar filas
-  registros.forEach(r => {
-    const colorEstado =
-      r.estado === 'Finalizado' ? 'green' :
-      r.estado === 'En proceso' ? 'orange' : 'red';
-    tbody.innerHTML += `
-      <tr data-id="${r.id}">
-        <td>${r.aliado}</td>
-        <td>${r.fecha || ''}</td>
-        <td>${r.visitante || ''}</td>
-        <td>${r.lugar || ''}</td>
-        <td style="text-align:left">${r.descripcion}</td>
-        <td>
-          <select class="sel-estado" style="color:${colorEstado}">
-            <option ${r.estado==='Pendiente'?'selected':''}>Pendiente</option>
-            <option ${r.estado==='En proceso'?'selected':''}>En proceso</option>
-            <option ${r.estado==='Finalizado'?'selected':''}>Finalizado</option>
-          </select>
-        </td>
-        <td>
-          <select class="sel-prioridad">
-            <option ${r.prioridad==='Alta'?'selected':''}>Alta</option>
-            <option ${r.prioridad==='Media'?'selected':''}>Media</option>
-            <option ${r.prioridad==='Baja'?'selected':''}>Baja</option>
-          </select>
-        </td>
-        <td><input type="text" class="txt-responsable" value="${r.responsable || ''}" placeholder="Encargado"></td>
-        <td><input type="date" class="txt-fecha" value="${r.fecha_gestion || ''}"></td>
-        <td><textarea rows="1" class="txt-obs">${r.obs || ''}</textarea></td>
-      </tr>
-    `;
-  });
-
-  // Filtrado en vivo
-  document.getElementById('buscarCRM').addEventListener('input', filtrar);
-  document.getElementById('filtroEstado').addEventListener('change', filtrar);
-document.getElementById('btnBuscar').addEventListener('click', filtrar);
-
-
-  function filtrar() {
-    const texto = document.getElementById('buscarCRM').value.toLowerCase();
-    const estadoSel = document.getElementById('filtroEstado').value;
-    tbody.querySelectorAll('tr').forEach(tr => {
-      const aliado = tr.children[0].textContent.toLowerCase();
-      const visitante = tr.children[2].textContent.toLowerCase();
-      const estado = tr.querySelector('.sel-estado').value;
-      const visible =
-        (!texto || aliado.includes(texto) || visitante.includes(texto)) &&
-        (!estadoSel || estado === estadoSel);
-      tr.style.display = visible ? '' : 'none';
-    });
+  function rendResumen(){
+    resumen.innerHTML='';
+    detalleSub.innerHTML='';
+    for(let i=1;i<=20;i++){
+      const d=data[i]||{subs:[]};
+      let prom=0;
+      if(d.subs.length){prom=d.subs.reduce((a,b)=>a+b.fase,0)/(d.subs.length*10)*100;}
+      const nombreMostrado=d.nombre?d.nombre:`Subproceso ${i}`;
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${i}</td><td>${nombreMostrado}</td><td>${d.fase||'-'}</td><td>${d.subs.length}</td><td>${Math.round(prom)}%</td>`;
+      resumen.appendChild(tr);
+      if(d.subs.length){
+        const title=document.createElement('div');
+        title.className='subResumenTitulo';
+        title.textContent=`${nombreMostrado} — Detalle de Subprocesos:`;
+        detalleSub.appendChild(title);
+        d.subs.forEach(s=>{
+          const pct=Math.round((s.fase/10)*100);
+          const line=document.createElement('div');
+          line.className='subResumenItem';
+          line.textContent=`• ${s.nombre} — ${pct}% completado`;
+          detalleSub.appendChild(line);
+        });
+      }
+    }
   }
-
-  // Guardar cambios
-  document.getElementById('guardarSeguimiento').addEventListener('click', () => {
-    const nuevo = {};
-    tbody.querySelectorAll('tr').forEach(tr => {
-      const id = tr.dataset.id;
-      nuevo[id] = {
-        estado: tr.querySelector('.sel-estado').value,
-        prioridad: tr.querySelector('.sel-prioridad').value,
-        responsable: tr.querySelector('.txt-responsable').value,
-        fecha_gestion: tr.querySelector('.txt-fecha').value,
-        obs: tr.querySelector('.txt-obs').value
-      };
-    });
-    localStorage.setItem(seguimientoKey, JSON.stringify(nuevo));
-    alert('✅ Seguimiento de visitas actualizado correctamente.');
-  });
-
-  // Exportar a Excel
-  document.getElementById('exportarExcel').addEventListener('click', () => {
-    const wb = XLSX.utils.table_to_book(document.querySelector('table'), { sheet: "CRM_VISITAS" });
-    XLSX.writeFile(wb, 'CRM_Visitas_SIGAPH.xlsx');
-  });
-
-  // Cargar librería Excel si no está presente
-  if (typeof XLSX === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
-    document.body.appendChild(script);
-  }
-};
-</script>
-
+  sel(1);
+  </script>
 </body>
 </html>
