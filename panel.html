@@ -5,105 +5,54 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Panel Aliados | SIGAPH S.A.S.</title>
 
-  <!-- Librerías -->
+  <!-- jsPDF y html2canvas (jsPDF se usa para el PDF) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
-    body {
-      font-family: 'Poppins', Arial, sans-serif;
-      margin: 0;
-      background: #f4f7fb;
-      color: #333;
-      text-align: center;
-    }
-    header {
-      background: #fff;
-      color: #0a7b40;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+    /* --- estilo idéntico al que validaste --- */
+    body { font-family: 'Poppins', Arial, sans-serif; margin: 0; background: #f4f7fb; color: #333; text-align: center; }
+    header { background: #fff; color: #0a7b40; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .panel-logo img { height: 60px; margin-right: 12px; }
-    nav {
-      background: #0a7b40;
-      padding: 10px;
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-    nav button {
-      background: #fff;
-      color: #0a7b40;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+    nav { background: #0a7b40; padding: 10px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+    nav button { background: #fff; color: #0a7b40; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     nav button:hover { background: #002b5c; color: #fff; }
     main { padding: 20px; max-width: 1100px; margin: auto; text-align: left; }
     section { display: none; margin-top: 20px; }
     section.activo { display: block; }
-    .logout-btn {
-      background: #c0392b; color: #fff; border: none;
-      padding: 8px 12px; border-radius: 6px;
-      cursor: pointer; font-weight: bold;
-    }
+    .logout-btn { background: #c0392b; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     .logout-btn:hover { background: #a12e22; }
-    iframe {
-      width: 100%; border: none; border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
+    iframe { width: 100%; border: none; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #e9f5ee; }
     #logoCentral { display: block; margin: 30px auto; height: 120px; }
     .center { text-align: center; }
 
-    /* --- LÍNEA DE TIEMPO --- */
-    .timeline-container { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.1); padding:20px; }
-    .timeline-tabs { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:10px; }
-    .timeline-tab { background:#e9f5ee; border:none; border-radius:8px; padding:8px 14px; font-weight:600; cursor:pointer; transition:0.2s; }
-    .timeline-tab.active { background:#0a7b40; color:#fff; transform:scale(1.05); }
-    .timeline-step-small {
-      width:26px; height:26px; border-radius:5px;
-      line-height:26px; font-size:0.8rem;
-      color:#fff; cursor:pointer; transition:0.2s; margin:2px;
-    }
-    .timeline-step-small:hover { transform:scale(1.1); }
-    .timeline-compact { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin:10px 0; }
-    .timeline-controls select, .timeline-controls textarea {
-      width:100%; padding:8px; border-radius:6px; border:1px solid #ccc; margin-bottom:6px;
-    }
-    .timeline-controls button {
-      padding:8px; border:none; border-radius:6px;
-      background:#0a7b40; color:#fff; font-weight:600; cursor:pointer;
-    }
-    .timeline-controls button:hover { background:#086632; }
-    .sub-item {
-      background:#f9fafc; border-radius:10px; padding:10px; margin-bottom:12px;
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,0.05);
-    }
-    .sub-timeline { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; justify-content:flex-start; }
-    .sub-timeline div {
-      width:26px; height:26px; border-radius:5px; line-height:26px;
-      font-size:0.8rem; color:#fff; cursor:pointer; transition:0.2s;
-    }
-    .sub-timeline div:hover { transform:scale(1.1); }
-    #tablaResumen td { font-size:0.9rem; }
-    #tablaResumen th { font-size:0.95rem; }
-    #detalleSubprocesos {
-      margin-top:20px; background:#f7f9fb; border-radius:10px;
-      padding:12px; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.05);
-    }
-    .subResumenTitulo { margin:10px 0 6px; font-weight:600; color:#0a7b40; }
-    .subResumenItem { font-size:0.9rem; margin-left:10px; }
-    @media(max-width:800px){ main{padding:12px;} nav{flex-wrap:wrap;gap:8px;} iframe{height:820px!important;} }
+    /* Línea de tiempo */
+    .timeline-container { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); padding: 20px; }
+    .timeline-tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 10px; }
+    .timeline-tab { background: #e9f5ee; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; transition: 0.2s; min-width: 70px; }
+    .timeline-tab.active { background: #0a7b40; color: #fff; transform: scale(1.05); }
+    .timeline-step-small { width: 26px; height: 26px; border-radius: 5px; line-height: 26px; font-size: 0.8rem; color: #fff; cursor: pointer; transition: 0.2s; margin: 2px; }
+    .timeline-compact { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 10px 0; }
+    .timeline-controls select, .timeline-controls textarea { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 6px; }
+    .timeline-controls button { padding: 8px; border: none; border-radius: 6px; background: #0a7b40; color: #fff; font-weight: 600; cursor: pointer; }
+    .timeline-controls button:hover { background: #086632; }
+    .sub-item { background: #f9fafc; border-radius: 10px; padding: 10px; margin-bottom: 12px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); position: relative; text-align: left; }
+    .sub-timeline { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; justify-content: flex-start; }
+    .sub-timeline div { width: 26px; height: 26px; border-radius: 5px; line-height: 26px; font-size: 0.8rem; color: #fff; cursor: pointer; transition: 0.2s; text-align: center; }
+    .sub-item .eliminar-sub { background: #c0392b; color: #fff; border: none; border-radius: 6px; padding: 4px 8px; font-size: .8rem; cursor: pointer; position: absolute; right: 10px; top: 10px; }
+    .sub-item input[type="date"] { margin-top: 8px; padding: 6px; border-radius: 6px; border: 1px solid #ccc; display: block; }
+    .pdf-btn { background: #0a7b40; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .9rem; }
+    .pdf-btn:hover { background: #06692c; }
+    #tablaResumen td { font-size: 0.9rem; }
+    #detalleSubprocesos { margin-top: 20px; background: #f7f9fb; border-radius: 10px; padding: 12px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); text-align: left; }
+    .subResumenItem { font-size: 0.9rem; margin-left: 10px; display:flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.03); }
+    .name-row { display: flex; gap: 8px; justify-content: center; align-items: center; margin: 10px 0; }
+    .name-row input[type="text"], .name-row input[type="date"] { padding: 8px; border-radius: 8px; border: 1px solid #ccc; }
+    .name-row input[type="text"] { width: 50%; text-align: center; }
+    @media (max-width: 800px) { .name-row { flex-direction: column; } .name-row input[type="text"] { width: 90%; } main { padding: 12px; } }
   </style>
 </head>
 <body>
@@ -146,12 +95,13 @@
       </div>
     </section>
 
+    <!-- --- SECCIÓN LÍNEA (lo que validaste) --- -->
     <section id="linea">
       <h2 class="center">Línea de Tiempo — Seguimiento Detallado</h2>
       <div class="timeline-container">
         <div class="timeline-tabs" id="timelineTabs"></div>
         <div id="timelineContent">
-          <h3 id="timelineTitle" class="center">Seleccione un subproceso</h3>
+          <h3 id="timelineTitle" class="center">Seleccione un cliente o unidad</h3>
           <div id="timelineCompact" class="timeline-compact"></div>
 
           <div class="timeline-controls">
@@ -169,23 +119,40 @@
               <option value="9">9. Resultado</option>
               <option value="10">10. Finalizado</option>
             </select>
+
             <label>Resultado:</label>
             <select id="resultadoSelect">
               <option value="">Sin resultado</option>
               <option value="aprobado">Aprobado</option>
               <option value="rechazado">Rechazado</option>
             </select>
+
             <textarea id="observaciones" rows="3" placeholder="Observaciones..."></textarea>
             <button id="guardarFase">Guardar Avance</button>
             <button id="nuevoSub">Agregar Subproceso</button>
+
+            <!-- botón PDF (se muestra al seleccionar unidad) -->
+            <button id="pdfBtn" class="pdf-btn" style="display:none;">Generar PDF</button>
           </div>
+
+          <!-- name + date + eliminar unidad (dinámicos) -->
+          <div id="nameContainer" style="margin-top:10px;"></div>
 
           <div class="subprocesos-area" id="subArea"></div>
 
           <div id="listadoGeneral" style="margin-top:25px;">
             <h3 class="center">Resumen General</h3>
             <table id="tablaResumen">
-              <thead><tr><th>#</th><th>Cliente / Unidad</th><th>Fase</th><th>Subprocesos</th><th>Avance</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Fecha inicio</th>
+                  <th>Cliente / Unidad</th>
+                  <th>Fase</th>
+                  <th>Subprocesos</th>
+                  <th>Avance</th>
+                </tr>
+              </thead>
               <tbody></tbody>
             </table>
             <div id="detalleSubprocesos"></div>
@@ -200,158 +167,319 @@
         <iframe src="https://docs.google.com/spreadsheets/d/1ObxC_cbiPOW3u4cGLk__7NmrJLIVTagiyy_NJwd1QO8/edit?usp=drive_link&widget=true&headers=false" width="100%" height="750"></iframe>
       </div>
     </section>
+
   </main>
 
   <script>
-  const auth=JSON.parse(localStorage.getItem('aliado_autenticado')||'null');
-  if(!auth)window.location.href='login.html';
-  const logoMap={'SIGAPH':'logo_sigaph1.png'};
-  document.getElementById('logoUsuario').src=logoMap[auth.username]||'logo_sigaph1.png';
-  document.getElementById('logoCentral').src=logoMap[auth.username]||'logo_sigaph1.png';
-  document.getElementById('bienvenida').textContent=`Bienvenido, ${auth.username}`;
-  if(auth.username==='SIGAPH'){
-    document.getElementById('btnSolicitudes').style.display='inline-block';
-    document.getElementById('reporteSigaph').style.display='block';
-    document.getElementById('btnLinea').style.display='inline-block';
-  }
-  document.getElementById('cerrarSesion').onclick=()=>{localStorage.removeItem('aliado_autenticado');window.location='login.html';};
-  window.mostrarSeccion=id=>{document.querySelectorAll('main section').forEach(s=>s.classList.remove('activo'));document.getElementById(id).classList.add('activo');};
+    /***** autenticación y control (sin cambios) *****/
+    const auth = JSON.parse(localStorage.getItem('aliado_autenticado') || 'null');
+    if (!auth) window.location.href = 'login.html';
+    const logoMap = { 'SIGAPH': 'logo_sigaph1.png' };
+    document.getElementById('logoUsuario').src = logoMap[auth.username] || 'logo_sigaph1.png';
+    document.getElementById('logoCentral').src = logoMap[auth.username] || 'logo_sigaph1.png';
+    document.getElementById('bienvenida').textContent = `Bienvenido, ${auth.username}`;
+    if (auth.username === 'SIGAPH') {
+      document.getElementById('btnSolicitudes').style.display = 'inline-block';
+      document.getElementById('reporteSigaph').style.display = 'block';
+      document.getElementById('btnLinea').style.display = 'inline-block';
+    }
+    document.getElementById('cerrarSesion').onclick = () => { localStorage.removeItem('aliado_autenticado'); window.location = 'login.html'; };
+    window.mostrarSeccion = id => { document.querySelectorAll('main section').forEach(s => s.classList.remove('activo')); document.getElementById(id).classList.add('activo'); };
 
-  const fases=[{id:1,color:'#FFD54F'},{id:2,color:'#FFB74D'},{id:3,color:'#BA68C8'},{id:4,color:'#64B5F6'},{id:5,color:'#42A5F5'},{id:6,color:'#9CCC65'},{id:7,color:'#7CB342'},{id:8,color:'#558B2F'},{id:9,color:'#388E3C'},{id:10,color:'#2E7D32'}];
-  const tabs=document.getElementById('timelineTabs');
-  const title=document.getElementById('timelineTitle');
-  const compact=document.getElementById('timelineCompact');
-  const faseSel=document.getElementById('faseSelect');
-  const resSel=document.getElementById('resultadoSelect');
-  const obs=document.getElementById('observaciones');
-  const subArea=document.getElementById('subArea');
-  const resumen=document.querySelector('#tablaResumen tbody');
-  const detalleSub=document.getElementById('detalleSubprocesos');
-  let data=JSON.parse(localStorage.getItem('timelineData2')||'{}');
-  let actual=null;
+    /***** datos y fases (sin cambios) *****/
+    const fases = [
+      { id: 1, nombre: 'Diagnóstico', color: '#FFD54F' },
+      { id: 2, nombre: 'Informe preliminar', color: '#FFB74D' },
+      { id: 3, nombre: 'Informe aliado', color: '#BA68C8' },
+      { id: 4, nombre: 'Cotización', color: '#64B5F6' },
+      { id: 5, nombre: 'Enviado cliente', color: '#42A5F5' },
+      { id: 6, nombre: 'Espera', color: '#9CCC65' },
+      { id: 7, nombre: 'Seguimiento', color: '#7CB342' },
+      { id: 8, nombre: 'Toc toc', color: '#558B2F' },
+      { id: 9, nombre: 'Resultado', color: '#388E3C' },
+      { id: 10, nombre: 'Finalizado', color: '#2E7D32' }
+    ];
 
-  // campo de nombre manual
-  const nameInput=document.createElement('input');
-  nameInput.type='text';
-  nameInput.placeholder='Nombre del cliente o unidad...';
-  nameInput.style.cssText='display:none;width:60%;padding:8px;margin:10px auto;display:block;border-radius:8px;border:1px solid #ccc;font-size:1rem;text-align:center;';
-  title.parentNode.insertBefore(nameInput,title.nextSibling);
+    const tabs = document.getElementById('timelineTabs');
+    const title = document.getElementById('timelineTitle');
+    const compact = document.getElementById('timelineCompact');
+    const faseSel = document.getElementById('faseSelect');
+    const resSel = document.getElementById('resultadoSelect');
+    const obs = document.getElementById('observaciones');
+    const subArea = document.getElementById('subArea');
+    const resumen = document.querySelector('#tablaResumen tbody');
+    const detalleSub = document.getElementById('detalleSubprocesos');
+    const nameContainer = document.getElementById('nameContainer');
+    const pdfBtn = document.getElementById('pdfBtn');
 
-  for(let i=1;i<=20;i++){
-    const b=document.createElement('button');
-    b.textContent=i;
-    b.className='timeline-tab';
-    b.onclick=()=>sel(i);
-    tabs.appendChild(b);
-  }
+    let data = JSON.parse(localStorage.getItem('timelineData2') || '{}');
+    let actual = null;
 
-  function sel(n){
-    actual=n;
-    [...tabs.children].forEach(b=>b.classList.remove('active'));
-    tabs.children[n-1].classList.add('active');
+    // elementos name/date/delete (reutilizados)
+    const nameInput = document.createElement('input'); nameInput.type = 'text'; nameInput.placeholder = 'Nombre del cliente o unidad...';
+    const dateInput = document.createElement('input'); dateInput.type = 'date';
+    const eliminarUnidadBtn = document.createElement('button'); eliminarUnidadBtn.textContent = 'Eliminar Unidad';
+    eliminarUnidadBtn.className = 'eliminar-unidad';
+    eliminarUnidadBtn.style.cssText = 'background:#c0392b;color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;';
+    const nameRow = document.createElement('div'); nameRow.className = 'name-row'; nameRow.style.display = 'none';
+    nameRow.appendChild(nameInput); nameRow.appendChild(dateInput); nameRow.appendChild(eliminarUnidadBtn);
+    nameContainer.appendChild(nameRow);
 
-    if(!data[n])data[n]={nombre:'',fase:0,resultado:'',obs:'',subs:[]};
-    nameInput.style.display='block';
-    nameInput.value=data[n].nombre||'';
-    title.textContent=data[n].nombre?`Subproceso ${n} — ${data[n].nombre}`:`Subproceso ${n}`;
-    nameInput.oninput=()=>{
-      data[n].nombre=nameInput.value.trim();
-      save();
-      title.textContent=data[n].nombre?`Subproceso ${n} — ${data[n].nombre}`:`Subproceso ${n}`;
+    // crear 20 pestañas (muestran nombre si existe)
+    for (let i = 1; i <= 20; i++) {
+      const b = document.createElement('button');
+      b.textContent = i;
+      b.className = 'timeline-tab';
+      b.onclick = () => sel(i);
+      tabs.appendChild(b);
+    }
+
+    function todayISO() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function updateTabLabels() {
+      [...tabs.children].forEach((b, i) => {
+        const n = i + 1; const d = data[n];
+        b.textContent = (d && d.nombre) ? d.nombre : (n);
+      });
+    }
+
+    function sel(n) {
+      actual = n;
+      [...tabs.children].forEach(b => b.classList.remove('active'));
+      tabs.children[n - 1].classList.add('active');
+
+      if (!data[n]) data[n] = { nombre: '', startDate: '', fase: 0, resultado: '', obs: '', subs: [] };
+
+      // mostrar fila nombre/fecha
+      nameRow.style.display = 'flex';
+      nameInput.value = data[n].nombre || '';
+      dateInput.value = data[n].startDate || '';
+
+      nameInput.oninput = () => {
+        data[n].nombre = nameInput.value.trim();
+        if (data[n].nombre && !data[n].startDate) { data[n].startDate = todayISO(); dateInput.value = data[n].startDate; }
+        save(); title.textContent = data[n].nombre ? `Cliente/Unidad ${n} — ${data[n].nombre}` : `Cliente/Unidad ${n}`;
+        rendResumen(); updateTabLabels();
+      };
+
+      dateInput.onchange = () => { data[n].startDate = dateInput.value; save(); rendResumen(); };
+
+      eliminarUnidadBtn.onclick = () => {
+        if (confirm('¿Eliminar nombre y fecha de esta unidad?')) {
+          data[n].nombre = ''; data[n].startDate = ''; nameInput.value = ''; dateInput.value = ''; save();
+          title.textContent = `Cliente/Unidad ${n}`; rendResumen(); updateTabLabels();
+        }
+      };
+
+      title.textContent = data[n].nombre ? `Cliente/Unidad ${n} — ${data[n].nombre}` : `Cliente/Unidad ${n}`;
+
+      faseSel.value = data[n].fase || 0; resSel.value = data[n].resultado || ''; obs.value = data[n].obs || '';
+
+      rendCompact(data[n].fase);
+      rendSubs(n);
       rendResumen();
+      updateTabLabels();
+
+      // mostrar el botón PDF al seleccionar unidad
+      pdfBtn.style.display = 'inline-block';
+    }
+
+    function rendCompact(f) {
+      compact.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        const d = document.createElement('div');
+        d.className = 'timeline-step-small';
+        d.textContent = i;
+        d.style.background = f >= i ? fases[i - 1].color : '#ccc';
+        d.onclick = () => { data[actual].fase = i; save(); rendCompact(i); rendResumen(); };
+        compact.appendChild(d);
+      }
+    }
+
+    function rendSubs(n) {
+      subArea.innerHTML = '';
+      const subs = data[n].subs || [];
+      subs.forEach((s, i) => {
+        const div = document.createElement('div'); div.className = 'sub-item';
+        const btnEliminar = document.createElement('button'); btnEliminar.className = 'eliminar-sub'; btnEliminar.textContent = 'Eliminar';
+        btnEliminar.onclick = () => {
+          if (confirm('¿Eliminar este subproceso?')) { data[n].subs.splice(i, 1); save(); rendSubs(n); rendResumen(); }
+        };
+
+        const dateSub = document.createElement('input'); dateSub.type = 'date';
+        if (!s.startDate) s.startDate = todayISO();
+        dateSub.value = s.startDate || '';
+        dateSub.onchange = () => { s.startDate = dateSub.value; save(); rendResumen(); };
+
+        const strong = document.createElement('strong'); strong.textContent = `${i + 1}. ${s.nombre}`;
+        div.appendChild(strong); div.appendChild(btnEliminar); div.appendChild(dateSub);
+
+        const tl = document.createElement('div'); tl.className = 'sub-timeline';
+        for (let j = 1; j <= 10; j++) {
+          const b = document.createElement('div');
+          b.textContent = j;
+          b.style.background = (s.fase || 0) >= j ? fases[j - 1].color : '#ccc';
+          b.onclick = () => { s.fase = j; save(); rendSubs(n); rendResumen(); };
+          tl.appendChild(b);
+        }
+        div.appendChild(tl);
+        subArea.appendChild(div);
+      });
+    }
+
+    document.getElementById('guardarFase').onclick = () => {
+      if (!actual) return;
+      if (!data[actual]) data[actual] = { nombre: '', startDate: '', fase: 0, resultado: '', obs: '', subs: [] };
+      data[actual].fase = parseInt(faseSel.value) || 0;
+      data[actual].resultado = resSel.value || '';
+      data[actual].obs = obs.value || '';
+      save(); rendCompact(data[actual].fase); rendResumen();
     };
 
-    faseSel.value=data[n].fase;
-    resSel.value=data[n].resultado;
-    obs.value=data[n].obs;
-    rendCompact(data[n].fase);
-    rendSubs(n);
-    rendResumen();
-  }
-
-  function rendCompact(f){
-    compact.innerHTML='';
-    for(let i=1;i<=10;i++){
-      const d=document.createElement('div');
-      d.className='timeline-step-small';
-      d.textContent=i;
-      d.style.background=f>=i?fases[i-1].color:'#ccc';
-      d.onclick=()=>{data[actual].fase=i;save();rendCompact(i);rendResumen();};
-      compact.appendChild(d);
-    }
-  }
-
-  function rendSubs(n){
-    subArea.innerHTML='';
-    const subs=data[n].subs||[];
-    subs.forEach((s,i)=>{
-      const div=document.createElement('div');
-      div.className='sub-item';
-      div.innerHTML=`<strong>${i+1}. ${s.nombre}</strong>`;
-      const tl=document.createElement('div');
-      tl.className='sub-timeline';
-      for(let j=1;j<=10;j++){
-        const b=document.createElement('div');
-        b.textContent=j;
-        b.style.background=s.fase>=j?fases[j-1].color:'#ccc';
-        b.onclick=()=>{s.fase=j;save();rendSubs(n);rendResumen();};
-        tl.appendChild(b);
+    document.getElementById('nuevoSub').onclick = () => {
+      if (!actual) return;
+      const nom = prompt('Nombre del subproceso');
+      if (nom) {
+        if (!data[actual]) data[actual] = { nombre: '', startDate: '', fase: 0, resultado: '', obs: '', subs: [] };
+        const newSub = { nombre: nom, fase: 0, startDate: todayISO() };
+        data[actual].subs.push(newSub);
+        save(); rendSubs(actual); rendResumen();
       }
-      div.appendChild(tl);
-      subArea.appendChild(div);
-    });
-  }
+    };
 
-  document.getElementById('guardarFase').onclick=()=>{
-    if(!actual)return;
-    data[actual].fase=parseInt(faseSel.value);
-    data[actual].resultado=resSel.value;
-    data[actual].obs=obs.value;
-    save();
-    rendCompact(data[actual].fase);
-    rendResumen();
-  };
+    function save() { localStorage.setItem('timelineData2', JSON.stringify(data)); }
 
-  document.getElementById('nuevoSub').onclick=()=>{
-    if(!actual)return;
-    const nom=prompt('Nombre del subproceso');
-    if(nom){
-      data[actual].subs.push({nombre:nom,fase:0});
-      save();
-      rendSubs(actual);
-      rendResumen();
-    }
-  };
+    function rendResumen() {
+      resumen.innerHTML = ''; detalleSub.innerHTML = '';
+      for (let i = 1; i <= 20; i++) {
+        const d = data[i] || { subs: [] };
+        let prom = 0;
+        if (d.subs && d.subs.length) prom = d.subs.reduce((a, b) => a + (b.fase || 0), 0) / (d.subs.length * 10) * 100;
+        const nombreMostrado = d.nombre ? d.nombre : `Cliente ${i}`;
+        const fechaUnidad = d.startDate ? d.startDate : '—';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i}</td><td style="white-space:nowrap;">${fechaUnidad}</td><td style="text-align:left;padding-left:10px;">${nombreMostrado}</td><td>${d.fase || '-'}</td><td>${(d.subs ? d.subs.length : 0)}</td><td>${Math.round(prom)}%</td>`;
+        resumen.appendChild(tr);
 
-  function save(){ localStorage.setItem('timelineData2',JSON.stringify(data)); }
-
-  function rendResumen(){
-    resumen.innerHTML='';
-    detalleSub.innerHTML='';
-    for(let i=1;i<=20;i++){
-      const d=data[i]||{subs:[]};
-      let prom=0;
-      if(d.subs.length){prom=d.subs.reduce((a,b)=>a+b.fase,0)/(d.subs.length*10)*100;}
-      const nombreMostrado=d.nombre?d.nombre:`Subproceso ${i}`;
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${i}</td><td>${nombreMostrado}</td><td>${d.fase||'-'}</td><td>${d.subs.length}</td><td>${Math.round(prom)}%</td>`;
-      resumen.appendChild(tr);
-      if(d.subs.length){
-        const title=document.createElement('div');
-        title.className='subResumenTitulo';
-        title.textContent=`${nombreMostrado} — Detalle de Subprocesos:`;
-        detalleSub.appendChild(title);
-        d.subs.forEach(s=>{
-          const pct=Math.round((s.fase/10)*100);
-          const line=document.createElement('div');
-          line.className='subResumenItem';
-          line.textContent=`• ${s.nombre} — ${pct}% completado`;
-          detalleSub.appendChild(line);
-        });
+        if (d.subs && d.subs.length) {
+          const title = document.createElement('div'); title.className = 'subResumenTitle';
+          title.textContent = `${nombreMostrado} — Detalle de Subprocesos:`; detalleSub.appendChild(title);
+          d.subs.forEach((s, idx) => {
+            const pct = Math.round((s.fase || 0) / 10 * 100);
+            const item = document.createElement('div'); item.className = 'subResumenItem';
+            const left = document.createElement('div'); left.style.flex = '1'; left.textContent = (s.startDate || '—') + '  •  ' + s.nombre;
+            const right = document.createElement('div'); right.style.minWidth = '60px'; right.textContent = `${pct}%`;
+            item.appendChild(left); item.appendChild(right); detalleSub.appendChild(item);
+          });
+        }
       }
     }
-  }
-  sel(1);
+
+    // inicializar mostrando el 1
+    sel(1);
+
+    /***** GENERAR PDF (corregido) *****/
+    // usa jsPDF (cargado por CDN arriba). Carga el logo localmente (logo_sigaph1.png) y lo dibuja en el PDF.
+    pdfBtn.onclick = async () => {
+      if (!actual) return alert('Seleccione una unidad primero.');
+      const { jsPDF } = window.jspdf;
+      const unit = data[actual] || { nombre: `Unidad ${actual}`, subs: [] };
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      // carga logo local (archivo logo_sigaph1.png en la misma carpeta)
+      try {
+        const logoDataUrl = await imageToDataURL('logo_sigaph1.png');
+        // Header
+        doc.addImage(logoDataUrl, 'PNG', 40, 30, 60, 60);
+      } catch (e) {
+        // si no carga logo, continua sin él
+        console.warn('No se pudo cargar logo local (logo_sigaph1.png).', e);
+      }
+
+      // Título y texto
+      doc.setFontSize(16); doc.setTextColor(10, 123, 64);
+      doc.text('SIGAPH S.A.S. — Resumen General', 120, 50);
+      doc.setFontSize(12); doc.setTextColor(0);
+      const nombre = unit.nombre || `Unidad ${actual}`;
+      doc.text(`Cliente / Unidad: ${nombre}`, 40, 110);
+      const inicioUnidad = unit.startDate ? `Fecha inicio: ${unit.startDate}` : '';
+      if (inicioUnidad) doc.text(inicioUnidad, 40, 128);
+
+      doc.setFontSize(10);
+      const desc = "Documento informativo que presenta el estado actual de los procedimientos realizados dentro de la unidad, reflejando el avance de cada fase desde la etapa inicial hasta la etapa final de satisfacción o cierre. Este reporte permite visualizar el desarrollo, efectividad y resultados alcanzados en cada proceso ejecutado.";
+      // texto multilineado
+      const splitDesc = doc.splitTextToSize(desc, 520);
+      doc.text(splitDesc, 40, 150);
+
+      // Tabla de subprocesos
+      doc.setFontSize(11); doc.text('Estado de Subprocesos:', 40, 200);
+      let y = 220;
+      const lineHeight = 16;
+
+      unit.subs = unit.subs || [];
+      if (unit.subs.length === 0) {
+        doc.text('No hay subprocesos registrados para esta unidad.', 40, y);
+        y += lineHeight;
+      } else {
+        for (let i = 0; i < unit.subs.length; i++) {
+          const s = unit.subs[i];
+          const faseObj = fases.find(f => f.id === (s.fase || 0)) || { nombre: '—', color: '#cccccc' };
+          const pct = Math.round((s.fase || 0) / 10 * 100);
+          // dibujar pequeño rectángulo con color de fase
+          try {
+            // rellenar con color
+            const rgb = hexToRgb(faseObj.color);
+            if (rgb) doc.setFillColor(rgb.r, rgb.g, rgb.b);
+            else doc.setFillColor(200,200,200);
+            doc.rect(40, y - 10, 8, 8, 'F'); // rect color
+          } catch (e) {}
+          // texto: índice, nombre, fase, porcentaje, fecha inicio
+          const text = `${i+1}. ${s.nombre} — ${faseObj.nombre} — ${pct}%`;
+          const fecha = s.startDate ? ` (inicio: ${s.startDate})` : '';
+          doc.setFontSize(10);
+          doc.text(text + fecha, 56, y);
+          y += lineHeight;
+          if (y > 750) { doc.addPage(); y = 40; }
+        }
+      }
+
+      // Footer: fecha de generación
+      const now = new Date();
+      doc.setFontSize(9); doc.setTextColor(120);
+      doc.text(`Generado: ${now.toLocaleString()}`, 40, 800);
+
+      // nombre de archivo seguro
+      const safeName = (nombre || `Unidad_${actual}`).replace(/[^\w\-]/g, '_').slice(0,60);
+      doc.save(`Reporte_${safeName}.pdf`);
+    };
+
+    // util: cargar imagen local y devolver dataURL (promise)
+    function imageToDataURL(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width; canvas.height = img.height;
+          const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
+          try { resolve(canvas.toDataURL('image/png')); } catch (e) { reject(e); }
+        };
+        img.onerror = (e) => reject(e);
+        img.src = url;
+      });
+    }
+
+    // util: hex color to rgb
+    function hexToRgb(hex) {
+      if (!hex) return null;
+      hex = hex.replace('#','');
+      if (hex.length === 3) hex = hex.split('').map(h => h+h).join('');
+      const bigint = parseInt(hex, 16);
+      if (isNaN(bigint)) return null;
+      return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+    }
   </script>
 </body>
 </html>
